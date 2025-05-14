@@ -1,10 +1,10 @@
 import "./App.css";
-import "./Header";
+import Header from"./Header";
 function App() {
 
   return (
     <>
-      <h1>Hello Vite!</h1>
+      <>Header/>
       <p>This is your first Vite Project</p>
     </>
   )
