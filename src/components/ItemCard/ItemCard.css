@@ -1,0 +1,55 @@
+/* src/components/ItemCard/ItemCard.css */
+
+.item-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+.item-card:hover {
+  transform: translateY(-4px);
+}
+
+.item-card__image {
+  width: 100%;
+  height: 100px;
+  object-fit: contain;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.item-card__name {
+  margin-top: 8px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.item-card__actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.item-card__like,
+.item-card__delete {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.item-card__like:hover,
+.item-card__delete:hover {
+  transform: scale(1.2);
+}
+.item-card__like {
+  color: #ff4081;
+}
+.item-card__delete {
+  color: #f44336;
+}
