@@ -1,107 +1,106 @@
 // src/components/App/App.jsx
 import { useEffect, useState } from "react";
-import "./App.css";
+import { getWeatherByCity } from "../../services/weather";
 
-import Header from "../Header/Header";
-import Main from "../Main/Main";
-import Footer from "../Footer/Footer";
-import ModalWithForm from "../ModalWithForm/ModalWithForm";
-import ItemModal from "../ItemModal/ItemModal";
+import Header from "../Header/Header.jsx";
+import WeatherCard from "../WeatherCard/WeatherCard.jsx";
+import ClothingSuggestion from "../ClothingSuggestion/ClothingSuggestion.jsx";
+import Footer from "../Footer/Footer.jsx";
 
-import { defaultClothingItems, getWeatherType } from "../../utils/constants";
-import { fetchCurrentWeather, parseWeather } from "../../utils/weatherApi";
-
-const STORAGE_KEY = "clothingItems";
+// Outfit bands in °C
+function getSuggestions(tempC) {
+  if (!Number.isFinite(tempC)) return ["—"];
+  if (tempC <= 5) return ["Heavy coat", "Scarf", "Gloves", "Boots"];
+  if (tempC <= 15) return ["Light jacket", "Sweater", "Jeans"];
+  if (tempC <= 24) return ["Long-sleeve tee", "Chinos", "Sneakers"];
+  return ["T-shirt", "Shorts", "Cap", "Light shoes"];
+}
 
 export default function App() {
-  const [weather, setWeather] = useState({ temp: 75, location: "New York" });
+  const [city, setCity] = useState("New York");
+  const [units, setUnits] = useState("metric");
+  const [weather, setWeather] = useState(null);
+  const [status, setStatus] = useState("idle");
+  const [error, setError] = useState("");
 
-  // ✅ Hydrate from localStorage at start
-  const [items, setItems] = useState(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : defaultClothingItems;
-    } catch {
-      return defaultClothingItems;
+  useEffect(() => {
+    let cancelled = false;
+    async function run() {
+      setStatus("loading");
+      setError("");
+      try {
+        const w = await getWeatherByCity(city, units);
+        if (!cancelled) {
+          setWeather(w);
+          setStatus("idle");
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setStatus("error");
+          setError(e.message || "Failed to load weather");
+        }
+      }
     }
-  });
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [city, units]);
 
-  const [showAll, setShowAll] = useState(true);
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const tempC =
+    weather &&
+    (units === "metric"
+      ? weather.temp
+      : Math.round((weather.temp - 32) * (5 / 9)));
 
-  // Save to localStorage whenever items change
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
-
-  // Fetch weather
-  useEffect(() => {
-    fetchCurrentWeather().then(parseWeather).then(setWeather).catch(console.error);
-  }, []);
-
-  const weatherType = getWeatherType(Number(weather.temp) || 0);
-  const visibleItems = showAll ? items : items.filter((i) => i.weather === weatherType);
-
-  const handleCardClick = (item) => setSelectedItem(item);
-  const closeAllModals = () => {
-    setIsAddOpen(false);
-    setSelectedItem(null);
-  };
-
-  const handleAddItem = ({ name, weather, link }) => {
-    const newItem = { _id: Date.now(), name, weather, link, liked: false };
-    setItems((prev) => [newItem, ...prev]);
-    setIsAddOpen(false);
-  };
-
-  const handleLikeToggle = (id) => {
-    setItems((prev) =>
-      prev.map((it) => (it._id === id ? { ...it, liked: !it.liked } : it))
-    );
-  };
-
-  const handleDeleteItem = (id) => {
-    setItems((prev) => prev.filter((it) => it._id !== id));
-    if (selectedItem?._id === id) setSelectedItem(null);
-  };
+  const outfits = getSuggestions(Number(tempC));
 
   return (
-    <>
+    <div className="app">
       <Header
-        date={new Date().toLocaleString("default", { month: "long", day: "numeric" })}
-        location={weather.location}
-        onAddClothes={() => setIsAddOpen(true)}
-        username="Terrence Tegegne"
-        avatarUrl="https://placekitten.com/40/40"
+        city={city}
+        onCityChange={setCity}
+        units={units}
+        onUnitsChange={setUnits}
       />
 
-      <Main
-        weather={weather}
-        garments={visibleItems}
-        onItemClick={handleCardClick}
-        onLikeToggle={handleLikeToggle}
-        onDeleteItem={handleDeleteItem}
-        showAll={showAll}
-        onToggleShowAll={() => setShowAll((v) => !v)}
-      />
+      <main className="main">
+        {status === "loading" && <p className="status">Loading weather…</p>}
 
-      <ModalWithForm
-        isOpen={isAddOpen}
-        onClose={closeAllModals}
-        onAddItem={handleAddItem}
-      />
+        {status === "error" && (
+          <div className="status status--error">
+            <p>{error}</p>
+            {error.includes("VITE_API_KEY") && (
+              <div className="hint">
+                <p>Create a <code>.env</code> in the project root with:</p>
+                <pre>VITE_API_KEY=your_openweather_key</pre>
+                <p>Then restart <code>npm run dev</code>.</p>
+              </div>
+            )}
+          </div>
+        )}
 
-      {selectedItem && (
-        <ItemModal
-          item={selectedItem}
-          onClose={closeAllModals}
-          onLike={handleLikeToggle}
-          onDelete={handleDeleteItem}
-        />
-      )}
+        {status === "idle" && weather && (
+          <>
+            <WeatherCard
+              city={weather.city}
+              country={weather.country}
+              temp={weather.temp}
+              feelsLike={weather.feelsLike}
+              condition={weather.condition}
+              icon={weather.icon}
+              units={units}
+            />
+            <ClothingSuggestion
+              temperatureC={tempC}
+              condition={weather.condition}
+              outfits={outfits}
+            />
+          </>
+        )}
+      </main>
 
       <Footer />
-    </>
+    </div>
   );
 }

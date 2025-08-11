@@ -1,42 +1,48 @@
+/* src/components/App/App.css */
+
+/* Variables */
+:root {
+  --maxw: 1100px;
+}
+
+/* Full height */
+html,
+body,
 #root {
-  max-width: 1280px;
+  height: 100%;
+}
+
+/* Body reset & background */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f4f6f8;
+  color: #111;
+}
+
+/* App wrapper */
+.app {
+  min-height: 100%;
+}
+
+/* Content container */
+.app__container {
+  max-width: var(--maxw);
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  padding: 16px;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Section spacing */
+.app__section {
+  margin-bottom: 16px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
+/* Remove Vite demo leftovers */
+.logo,
+.card,
 .read-the-docs {
-  color: #888;
+  display: none;
 }

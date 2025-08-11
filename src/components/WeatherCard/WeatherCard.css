@@ -1,22 +1,54 @@
 /* src/components/WeatherCard/WeatherCard.css */
-
-.weather-card {
+.weather {
+  max-width: 680px;
+  margin: 20px auto 16px;
+  padding: 16px;
+  border: 1px solid #eee;
+  border-radius: 12px;
   background: #fff;
-  border-radius: 0.5rem;
-  padding: 1rem 1.5rem;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin-bottom: 1.5rem;
 }
 
-.weather-card__temp {
-  font-size: 2.5rem;
+.weather__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.weather__city {
   margin: 0;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 700;
 }
 
-.weather-card__location {
-  margin: 0.25rem 0 0;
-  font-size: 1rem;
+.weather__body {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.weather__icon {
+  width: 100px;
+  height: 100px;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.weather__temp {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.weather__meta {
+  display: flex;
+  gap: 10px;
   color: #555;
+}
+
+.weather__condition {
+  text-transform: capitalize;
+}
+
+.weather__feels {
+  font-style: italic;
 }

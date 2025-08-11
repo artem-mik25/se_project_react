@@ -1,0 +1,24 @@
+.clothes {
+  max-width: 680px;
+  margin: 8px auto 0;
+  padding: 16px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.clothes__title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.clothes__meta {
+  margin: 0 0 12px;
+  color: #666;
+}
+
+.clothes__list {
+  margin: 0;
+  padding-left: 18px;
+}
