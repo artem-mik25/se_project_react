@@ -1,63 +1,162 @@
 /* src/components/ModalWithForm/ModalWithForm.css */
 
-.modal-overlay {
+/* Overlay */
+.modal {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  display: grid;
+  place-items: center;
   z-index: 1000;
 }
 
-.modal-content {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 400px;
+/* Card */
+.modal__content {
   position: relative;
+  width: min(560px, 92vw);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px 20px 22px;
+  box-shadow:
+    0 10px 15px rgba(0,0,0,0.05),
+    0 4px 6px rgba(0,0,0,0.04);
 }
 
+/* Title */
+.modal__title {
+  margin: 0 0 14px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Close button */
 .modal__close {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: transparent;
-  border: none;
-  font-size: 1.2rem;
+  top: 10px;
+  right: 10px;
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1;
   cursor: pointer;
+  color: #374151;
+  opacity: 0.9;
+  transition: opacity 120ms ease, transform 120ms ease, background 120ms ease;
+}
+.modal__close:hover { opacity: 1; transform: scale(1.05); }
+.modal__close:active { transform: scale(0.98); }
+.modal__close:focus-visible {
+  outline: 2px solid #00aaff;
+  outline-offset: 2px;
 }
 
-.modal__title {
-  margin-top: 0;
-  text-align: center;
+/* Form */
+.modal__form {
+  display: grid;
+  gap: 12px;
 }
 
-.modal__form label {
-  display: block;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+/* Labels & inputs (used by children) */
+.modal__label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: #111827;
 }
 
-.modal__form input,
-.modal__form select {
-  width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.25rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.modal__input {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #111827;
+  background: #ffffff;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.modal__input::placeholder { color: #9ca3af; }
+.modal__input:focus {
+  outline: none;
+  border-color: #00aaff;
+  box-shadow: 0 0 0 3px rgba(0,170,255,0.15);
 }
 
+/* Radio group */
+.modal__fieldset {
+  margin: 4px 0 0;
+  padding: 0;
+  border: none;
+}
+
+.modal__legend {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.modal__radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 12px;
+  font-size: 14px;
+  color: #111827;
+}
+
+/* Actions */
+.modal__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* Submit */
 .modal__submit {
-  width: 100%;
-  padding: 0.75rem;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  appearance: none;
+  border: 1px solid #00aaff;
+  background: #00aaff;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 14px;
+  border-radius: 10px;
   cursor: pointer;
+  transition: background 120ms ease, transform 80ms ease, border-color 120ms ease;
 }
-.modal__submit:hover {
-  background: #0056b3;
+.modal__submit:hover { background: #0090dd; border-color: #0090dd; }
+.modal__submit:active { transform: translateY(1px); }
+.modal__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Secondary button (if you add one later) */
+.modal__btn {
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+  font-size: 14px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+.modal__btn:hover { background: #f9fafb; }
+.modal__btn:active { transform: translateY(1px); }
+.modal__btn:focus-visible {
+  outline: 2px solid #00aaff;
+  outline-offset: 2px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 420px) {
+  .modal__content { padding: 16px 16px 18px; }
+  .modal__title { font-size: 18px; }
 }

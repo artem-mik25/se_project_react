@@ -1,55 +1,41 @@
 // src/components/Header/Header.jsx
 import "./Header.css";
+import Logo from "../Logo/Logo.jsx";
+import profilePic from "../../assets/Me.png"; // lowercase extension
 
-export default function Header({
-  city,
-  onCityChange,
-  units,
-  onUnitsChange,
-  onAddItem, // optional: hook up to your modal later
-}) {
+export default function Header({ city = "—", onAddItem }) {
+  // Generate current date like "August 15"
+  const currentDate = new Date().toLocaleString("default", {
+    month: "long",
+    day: "numeric",
+  });
+
   return (
     <header className="header">
-      <div className="header__row">
-        <h1 className="header__brand">wtwr°</h1>
-
-        <div className="header__controls">
-          <label className="header__field">
-            <span className="visually-hidden">City</span>
-            <input
-              className="header__input"
-              type="text"
-              value={city}
-              onChange={(e) => onCityChange?.(e.target.value)}
-              placeholder="Enter city"
-              aria-label="City"
-            />
-          </label>
-
-          <div className="header__units" role="group" aria-label="Units">
-            <button
-              type="button"
-              className={`btn btn--light ${units === "metric" ? "is-active" : ""}`}
-              onClick={() => onUnitsChange?.("metric")}
-            >
-              °C
-            </button>
-            <button
-              type="button"
-              className={`btn btn--light ${units === "imperial" ? "is-active" : ""}`}
-              onClick={() => onUnitsChange?.("imperial")}
-            >
-              °F
-            </button>
+      <div className="header__inner">
+        {/* Left: Logo + date/location pill */}
+        <div className="header__left">
+          <Logo />
+          <div className="header__date-location">
+            {currentDate} · {city}
           </div>
+        </div>
 
+        {/* Right: Add clothes button + your profile */}
+        <div className="header__right">
           <button
             type="button"
-            className="header__add-btn btn btn--light"
-            onClick={() => onAddItem?.()}
+            className="header__add-btn"
+            onClick={onAddItem}
           >
             + Add clothes
           </button>
+          <img
+            className="header__avatar"
+            src={profilePic}
+            alt="Artem Mikhaylov"
+          />
+          <span className="header__username">Artem Mikhaylov</span>
         </div>
       </div>
     </header>

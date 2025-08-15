@@ -1,106 +1,186 @@
 // src/components/App/App.jsx
-import { useEffect, useState } from "react";
-import { getWeatherByCity } from "../../services/weather";
+import { useEffect, useMemo, useState } from "react";
+import "./App.css";
 
 import Header from "../Header/Header.jsx";
-import WeatherCard from "../WeatherCard/WeatherCard.jsx";
-import ClothingSuggestion from "../ClothingSuggestion/ClothingSuggestion.jsx";
+import Main from "../Main/Main.jsx";
 import Footer from "../Footer/Footer.jsx";
+import ItemModal from "../ItemModal/ItemModal.jsx";
+import ModalWithForm from "../ModalWithForm/ModalWithForm.jsx";
 
-// Outfit bands in °C
-function getSuggestions(tempC) {
-  if (!Number.isFinite(tempC)) return ["—"];
-  if (tempC <= 5) return ["Heavy coat", "Scarf", "Gloves", "Boots"];
-  if (tempC <= 15) return ["Light jacket", "Sweater", "Jeans"];
-  if (tempC <= 24) return ["Long-sleeve tee", "Chinos", "Sneakers"];
-  return ["T-shirt", "Shorts", "Cap", "Light shoes"];
-}
+import { COORDS, defaultClothingItems } from "../../utils/constants.js";
+import { fetchWeather, classifyTempF } from "../../utils/weatherApi.js";
 
 export default function App() {
-  const [city, setCity] = useState("New York");
-  const [units, setUnits] = useState("metric");
-  const [weather, setWeather] = useState(null);
-  const [status, setStatus] = useState("idle");
+  // -------- App state (Sprint 10) --------
+  const [weather, setWeather] = useState(null); // { city, country, temp, feelsLike, condition, icon, units }
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [items, setItems] = useState([]); // default clothing items
+  const [showAll, setShowAll] = useState(false);
+
+  // Modals
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  // -------- Mount-only weather fetch (Fahrenheit) --------
   useEffect(() => {
     let cancelled = false;
-    async function run() {
-      setStatus("loading");
-      setError("");
+
+    async function load() {
       try {
-        const w = await getWeatherByCity(city, units);
+        setIsLoading(true);
+        const data = await fetchWeather({
+          latitude: COORDS.latitude,
+          longitude: COORDS.longitude,
+          units: "imperial", // Sprint 10 requirement (°F)
+        });
         if (!cancelled) {
-          setWeather(w);
-          setStatus("idle");
+          setWeather({ ...data, units: "imperial" });
+          setError("");
         }
       } catch (e) {
-        if (!cancelled) {
-          setStatus("error");
-          setError(e.message || "Failed to load weather");
-        }
+        if (!cancelled) setError(e?.message || "Failed to load weather");
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     }
-    run();
+
+    // default clothing items appear on mount
+    setItems(defaultClothingItems);
+    load();
+
     return () => {
       cancelled = true;
     };
-  }, [city, units]);
+  }, []);
 
-  const tempC =
-    weather &&
-    (units === "metric"
-      ? weather.temp
-      : Math.round((weather.temp - 32) * (5 / 9)));
+  // -------- Derived: weather type used for filtering in <Main> --------
+  const weatherType = useMemo(() => {
+    const t = weather?.temp;
+    return classifyTempF(Number.isFinite(t) ? t : NaN); // "hot" | "warm" | "cold"
+  }, [weather]);
 
-  const outfits = getSuggestions(Number(tempC));
+  // -------- Handlers --------
+  const handleOpenAdd = () => setIsAddOpen(true);
+  const handleCloseAdd = () => setIsAddOpen(false);
+
+  const handleCardClick = (item) => setSelectedItem(item);
+  const handleCloseItemModal = () => setSelectedItem(null);
+
+  const handleToggleShowAll = () => setShowAll((s) => !s);
+
+  // Add new item (minimal for Sprint 10; _id + liked default)
+  const handleAddItem = ({ name, weather, link }) => {
+    const newItem = {
+      _id: Date.now(), // simple id for now
+      name,
+      weather,
+      link,
+      liked: false,
+    };
+    setItems((prev) => [newItem, ...prev]);
+    handleCloseAdd();
+  };
 
   return (
     <div className="app">
       <Header
-        city={city}
-        onCityChange={setCity}
-        units={units}
-        onUnitsChange={setUnits}
+        city={weather?.city || "Loading…"}
+        onAddItem={handleOpenAdd}
       />
 
-      <main className="main">
-        {status === "loading" && <p className="status">Loading weather…</p>}
+      {/* Status / errors */}
+      {error && <div className="status status--error">{error}</div>}
+      {isLoading && !weather && <div className="status">Loading weather…</div>}
 
-        {status === "error" && (
-          <div className="status status--error">
-            <p>{error}</p>
-            {error.includes("VITE_API_KEY") && (
-              <div className="hint">
-                <p>Create a <code>.env</code> in the project root with:</p>
-                <pre>VITE_API_KEY=your_openweather_key</pre>
-                <p>Then restart <code>npm run dev</code>.</p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {status === "idle" && weather && (
-          <>
-            <WeatherCard
-              city={weather.city}
-              country={weather.country}
-              temp={weather.temp}
-              feelsLike={weather.feelsLike}
-              condition={weather.condition}
-              icon={weather.icon}
-              units={units}
-            />
-            <ClothingSuggestion
-              temperatureC={tempC}
-              condition={weather.condition}
-              outfits={outfits}
-            />
-          </>
-        )}
-      </main>
+      {/* Main holds WeatherCard + the garment grid; it does the filtering */}
+      <Main
+        weather={weather}
+        weatherType={weatherType}
+        items={items}
+        showAll={showAll}
+        onToggleShowAll={handleToggleShowAll}
+        onCardClick={handleCardClick}
+      />
 
       <Footer />
+
+      {/* Add Garment modal */}
+      {isAddOpen && (
+        <ModalWithForm
+          title="New Garment"
+          name="add-garment"
+          buttonText="Add"
+          onClose={handleCloseAdd}
+          onSubmit={(e) => {
+            e.preventDefault();
+            // Read via FormData (inputs live inside children)
+            const fd = new FormData(e.target);
+            handleAddItem({
+              name: fd.get("name")?.trim(),
+              weather: fd.get("weather"),
+              link: fd.get("imageUrl")?.trim(),
+            });
+          }}
+        >
+          <label className="modal__label">
+            Name
+            <input
+              className="modal__input"
+              type="text"
+              name="name"
+              placeholder="e.g., Beanie"
+              required
+              minLength="2"
+              maxLength="30"
+            />
+          </label>
+
+          <fieldset className="modal__fieldset">
+            <legend className="modal__legend">Weather type</legend>
+            <label className="modal__radio">
+              <input type="radio" name="weather" value="hot" required /> Hot
+            </label>
+            <label className="modal__radio">
+              <input type="radio" name="weather" value="warm" /> Warm
+            </label>
+            <label className="modal__radio">
+              <input type="radio" name="weather" value="cold" /> Cold
+            </label>
+          </fieldset>
+
+          <label className="modal__label">
+            Image URL
+            <input
+              className="modal__input"
+              type="url"
+              name="imageUrl"
+              placeholder="https://example.com/item.png"
+              required
+            />
+          </label>
+        </ModalWithForm>
+      )}
+
+      {/* Image modal */}
+      {selectedItem && (
+        <ItemModal
+          item={selectedItem}
+          onClose={handleCloseItemModal}
+          onLike={() =>
+            setItems((prev) =>
+              prev.map((it) =>
+                it._id === selectedItem._id ? { ...it, liked: !it.liked } : it
+              )
+            )
+          }
+          onDelete={() =>
+            setItems((prev) => prev.filter((it) => it._id !== selectedItem._id))
+          }
+        />
+      )}
     </div>
   );
 }

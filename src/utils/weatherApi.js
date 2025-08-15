@@ -1,42 +1,54 @@
 // src/utils/weatherApi.js
-import { COORDS, WEATHER_API_KEY } from "./constants";
 
-/**
- * Fetches raw data from OpenWeatherMap for your chosen coordinates.
- * @returns {Promise<any>}
- */
-export async function fetchCurrentWeather() {
-  const { lat, lon } = COORDS;
-  const url =
-    `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}` +
-    `&units=imperial&appid=${WEATHER_API_KEY}`;
+const API_BASE = "https://api.openweathermap.org/data/2.5/weather";
 
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Weather fetch failed (${res.status})`);
-  }
-  return res.json();
+/** Build the OpenWeather URL */
+function buildUrl({ latitude, longitude, units = "imperial", apiKey }) {
+  const url = new URL(API_BASE);
+  url.searchParams.set("lat", String(latitude));
+  url.searchParams.set("lon", String(longitude));
+  url.searchParams.set("units", units); // Sprint 10: "imperial" (°F)
+  url.searchParams.set("appid", apiKey);
+  return url.toString();
 }
 
 /**
- * Parses the OpenWeatherMap response into just the fields we need.
- * @param {any} data
- * @returns {{ temp: number, location: string }}
+ * Fetch current weather and normalize the shape.
+ * Returns:
+ * { city, country, temp, feelsLike, condition, icon }
  */
-export function parseWeather(data) {
+export async function fetchWeather({ latitude, longitude, units = "imperial" }) {
+  const apiKey = import.meta.env.VITE_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing VITE_API_KEY. Add it to your .env file.");
+  }
+
+  const res = await fetch(buildUrl({ latitude, longitude, units, apiKey }));
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Weather API error (${res.status}): ${text || res.statusText}`);
+  }
+
+  const data = await res.json();
   return {
-    temp: data.main.temp,
-    location: data.name,
+    city: data?.name ?? "Unknown",
+    country: data?.sys?.country ?? "",
+    temp: Math.round(data?.main?.temp ?? NaN),
+    feelsLike: Math.round(data?.main?.feels_like ?? NaN),
+    condition: data?.weather?.[0]?.main ?? "—",
+    icon: data?.weather?.[0]?.icon ?? null,
   };
 }
 
-/**
- * (Optional for later) Map a temperature to a simple weather category.
- * @param {number} temp
- * @returns {"hot"|"warm"|"cold"}
- */
-export function getWeatherType(temp) {
-  if (temp >= 86) return "hot";
-  if (temp >= 66) return "warm";
+/** Optional helper: icon URL */
+export function iconUrl(iconId) {
+  return iconId ? `https://openweathermap.org/img/wn/${iconId}@2x.png` : null;
+}
+
+/** Sprint 10 temperature classifier — Fahrenheit bands */
+export function classifyTempF(tempF) {
+  if (!Number.isFinite(tempF)) return "cold";
+  if (tempF >= 86) return "hot";
+  if (tempF >= 66) return "warm";
   return "cold";
 }

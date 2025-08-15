@@ -1,67 +1,68 @@
 // src/components/ModalWithForm/ModalWithForm.jsx
-import { useState } from "react";
+import { useEffect, useCallback } from "react";
 import "./ModalWithForm.css";
 
-export default function ModalWithForm({ isOpen, onClose, onAddItem }) {
-  // local form state
-  const [name, setName] = useState("");
-  const [weather, setWeather] = useState("warm");
-  const [link, setLink] = useState("");
+export default function ModalWithForm({
+  title = "Modal",
+  name = "form",
+  buttonText = "Save",
+  onClose,
+  onSubmit,
+  children,
+}) {
+  // Close on Esc
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (e.key === "Escape") onClose?.();
+    },
+    [onClose]
+  );
 
-  // submit handler
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onAddItem({ name, weather, link });
-    // reset & close
-    setName("");
-    setWeather("warm");
-    setLink("");
-    onClose();
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  // Close when clicking the dark overlay
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) onClose?.();
   };
 
-  if (!isOpen) return null; // don’t render anything if closed
-
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <button className="modal__close" onClick={onClose}>✕</button>
-        <h2 className="modal__title">Add New Item</h2>
-        <form className="modal__form" onSubmit={handleSubmit}>
-          <label>
-            Name
-            <input
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required
-            />
-          </label>
+    <div
+      className={`modal modal_type_${name}`}
+      role="dialog"
+      aria-modal="true"
+      onMouseDown={handleOverlayClick}
+    >
+      <div
+        className="modal__content"
+        onMouseDown={(e) => e.stopPropagation()} // prevent overlay close when clicking inside
+      >
+        <button
+          type="button"
+          className="modal__close"
+          aria-label="Close modal"
+          onClick={onClose}
+        >
+          ✕
+        </button>
 
-          <label>
-            Weather Type
-            <select
-              value={weather}
-              onChange={e => setWeather(e.target.value)}
-            >
-              <option value="hot">Hot</option>
-              <option value="warm">Warm</option>
-              <option value="cold">Cold</option>
-            </select>
-          </label>
+        <h2 className="modal__title">{title}</h2>
 
-          <label>
-            Image URL
-            <input
-              type="url"
-              value={link}
-              onChange={e => setLink(e.target.value)}
-              required
-            />
-          </label>
+        <form
+          className="modal__form"
+          name={name}
+          onSubmit={onSubmit}
+          noValidate
+        >
+          {children}
 
-          <button type="submit" className="modal__submit">
-            Add Item
-          </button>
+          <div className="modal__actions">
+            <button type="submit" className="modal__submit">
+              {buttonText}
+            </button>
+          </div>
         </form>
       </div>
     </div>

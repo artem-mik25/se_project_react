@@ -1,0 +1,91 @@
+/* src/vendor/normalize.css */
+/* Minimal normalize/reset tailored for WTWR (MIT-like style) */
+
+html {
+  line-height: 1.15; /* 1 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  color: #111827;
+  background: #ffffff;
+}
+
+main {
+  display: block;
+}
+
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+/* Links */
+a {
+  background-color: transparent;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Images */
+img {
+  border-style: none;
+  display: block;
+  max-width: 100%;
+}
+
+/* Buttons & inputs */
+button,
+input,
+optgroup,
+select,
+textarea {
+  font: inherit;
+  margin: 0;
+  color: inherit;
+}
+
+button {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
+/* Lists */
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+/* Forms */
+fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+/* Box sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Focus */
+:focus-visible {
+  outline: 2px solid #00aaff;
+  outline-offset: 2px;
+}
