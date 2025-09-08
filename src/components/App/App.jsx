@@ -58,8 +58,8 @@ export default function App() {
 
   // -------- Derived: weather type used for filtering in <Main> --------
   const weatherType = useMemo(() => {
-    const t = weather?.temp;
-    return classifyTempF(Number.isFinite(t) ? t : NaN); // "hot" | "warm" | "cold"
+    const temperature = weather?.temp;
+    return classifyTempF(Number.isFinite(temperature) ? temperature : NaN); // "hot" | "warm" | "cold"
   }, [weather]);
 
   // -------- Handlers --------
@@ -71,7 +71,16 @@ export default function App() {
 
   const handleToggleShowAll = () => setShowAll((s) => !s);
 
-  // Add new item (minimal for Sprint 10; _id + liked default)
+  // Like / Delete handlers (used by cards and modal)
+  const handleLikeItem = (id) =>
+    setItems((prev) =>
+      prev.map((it) => (it._id === id ? { ...it, liked: !it.liked } : it))
+    );
+
+  const handleDeleteItem = (id) =>
+    setItems((prev) => prev.filter((it) => it._id !== id));
+
+  // Add new item
   const handleAddItem = ({ name, weather, link }) => {
     const newItem = {
       _id: Date.now(), // simple id for now
@@ -86,10 +95,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <Header
-        city={weather?.city || "Loading…"}
-        onAddItem={handleOpenAdd}
-      />
+      <Header city={weather?.city || "Loading…"} onAddItem={handleOpenAdd} />
 
       {/* Status / errors */}
       {error && <div className="status status--error">{error}</div>}
@@ -103,6 +109,8 @@ export default function App() {
         showAll={showAll}
         onToggleShowAll={handleToggleShowAll}
         onCardClick={handleCardClick}
+        onLikeItem={handleLikeItem}
+        onDeleteItem={handleDeleteItem}
       />
 
       <Footer />
@@ -169,16 +177,11 @@ export default function App() {
         <ItemModal
           item={selectedItem}
           onClose={handleCloseItemModal}
-          onLike={() =>
-            setItems((prev) =>
-              prev.map((it) =>
-                it._id === selectedItem._id ? { ...it, liked: !it.liked } : it
-              )
-            )
-          }
-          onDelete={() =>
-            setItems((prev) => prev.filter((it) => it._id !== selectedItem._id))
-          }
+          onLike={() => handleLikeItem(selectedItem._id)}
+          onDelete={() => {
+            handleDeleteItem(selectedItem._id);
+            handleCloseItemModal();
+          }}
         />
       )}
     </div>

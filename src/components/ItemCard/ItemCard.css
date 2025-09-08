@@ -1,6 +1,6 @@
 /* src/components/ItemCard/ItemCard.css */
 
-.card {
+.item-card {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
@@ -11,12 +11,12 @@
   cursor: pointer;
 }
 
-.card:hover {
+.item-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }
 
-.card__image {
+.item-card__image {
   display: block;
   width: 100%;
   height: 160px;
@@ -24,34 +24,42 @@
   background: #f9fafb;
 }
 
-.card__body {
-  padding: 8px 12px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.card__name {
+.item-card__name {
   font-size: 14px;
   font-weight: 500;
-  margin: 0;
+  margin: 8px 12px 0;
   color: #111827;
 }
 
-.card__like-btn {
+.item-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px 12px;
+}
+
+.item-card__like,
+.item-card__delete {
   background: none;
   border: none;
   padding: 0;
   font-size: 18px;
-  color: #d1d5db; /* gray-300 */
   cursor: pointer;
   transition: color 0.2s ease;
 }
 
-.card__like-btn:hover {
+.item-card__like {
+  color: #d1d5db; /* gray-300 */
+}
+
+.item-card__like:hover {
   color: #f87171; /* red-400 */
 }
 
-.card__like-btn--active {
-  color: #ef4444; /* red-500 */
+.item-card__delete {
+  color: #9ca3af; /* gray-400 */
+}
+
+.item-card__delete:hover {
+  color: #b91c1c; /* red-700 */
 }
