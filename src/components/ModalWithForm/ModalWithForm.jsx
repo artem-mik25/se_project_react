@@ -30,14 +30,14 @@ export default function ModalWithForm({
 
   return (
     <div
-      className={`modal modal_type_${name}`}
+      className="modal"
       role="dialog"
       aria-modal="true"
       onMouseDown={handleOverlayClick}
     >
       <div
         className="modal__content"
-        onMouseDown={(e) => e.stopPropagation()} // prevent overlay close when clicking inside
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <button
           type="button"

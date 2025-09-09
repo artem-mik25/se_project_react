@@ -124,7 +124,6 @@ export default function App() {
           onClose={handleCloseAdd}
           onSubmit={(e) => {
             e.preventDefault();
-            // Read via FormData (inputs live inside children)
             const fd = new FormData(e.target);
             handleAddItem({
               name: fd.get("name")?.trim(),
