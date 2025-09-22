@@ -1,0 +1,77 @@
+/* src/components/DeleteConfirmationModal/DeleteConfirmationModal.css */
+.confirm__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 1100;
+}
+
+.confirm__content {
+  position: relative;
+  width: min(480px, 92vw);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.04);
+}
+
+.confirm__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  color: #374151;
+  opacity: 0.9;
+  transition: opacity 120ms ease, transform 120ms ease, background 120ms ease;
+}
+.confirm__close:hover { opacity: 1; transform: scale(1.05); }
+.confirm__close:active { transform: scale(0.98); }
+.confirm__close:focus-visible { outline: 2px solid #00aaff; outline-offset: 2px; }
+
+.confirm__title { margin: 0 0 8px; font-size: 20px; font-weight: 700; color: #111827; }
+.confirm__text { margin: 0 0 16px; font-size: 14px; color: #374151; }
+
+.confirm__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.confirm__btn {
+  appearance: none;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, transform 80ms ease;
+}
+.confirm__btn:hover { background: #f9fafb; }
+.confirm__btn:active { transform: translateY(1px); }
+.confirm__btn:focus-visible { outline: 2px solid #00aaff; outline-offset: 2px; }
+
+.confirm__btn--danger {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+.confirm__btn--danger:hover { background: #fee2e2; border-color: #fca5a5; }
+
+@media (max-width: 420px) {
+  .confirm__content { padding: 16px; }
+  .confirm__title { font-size: 18px; }
+}
