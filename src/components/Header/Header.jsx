@@ -1,10 +1,11 @@
 // src/components/Header/Header.jsx
 import "./Header.css";
+import { Link } from "react-router-dom";
 import Logo from "../Logo/Logo.jsx";
-import profilePic from "../../assets/Me.png"; // lowercase extension
+import ToggleSwitch from "../ToggleSwitch/ToggleSwitch.jsx";
+import profilePic from "../../assets/Me.png";
 
 export default function Header({ city = "—", onAddItem }) {
-  // Generate current date like "August 15"
   const currentDate = new Date().toLocaleString("default", {
     month: "long",
     day: "numeric",
@@ -13,16 +14,17 @@ export default function Header({ city = "—", onAddItem }) {
   return (
     <header className="header">
       <div className="header__inner">
-        {/* Left: Logo + date/location pill */}
         <div className="header__left">
-          <Logo />
+          <Link to="/" aria-label="Go to home">
+            <Logo />
+          </Link>
           <div className="header__date-location">
             {currentDate} · {city}
           </div>
         </div>
 
-        {/* Right: Add clothes button + your profile */}
         <div className="header__right">
+          <ToggleSwitch />
           <button
             type="button"
             className="header__add-btn"
@@ -30,12 +32,11 @@ export default function Header({ city = "—", onAddItem }) {
           >
             + Add clothes
           </button>
-          <img
-            className="header__avatar"
-            src={profilePic}
-            alt="Artem Mikhaylov"
-          />
-          <span className="header__username">Artem Mikhaylov</span>
+
+          <Link to="/profile" className="header__profile-link" aria-label="Go to profile" style={{display:"inline-flex",alignItems:"center",gap:"8px",textDecoration:"none",color:"inherit"}}>
+            <img className="header__avatar" src={profilePic} alt="Artem Mikhaylov" />
+            <span className="header__username">Artem Mikhaylov</span>
+          </Link>
         </div>
       </div>
     </header>
