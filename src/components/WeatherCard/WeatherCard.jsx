@@ -1,31 +1,40 @@
 // src/components/WeatherCard/WeatherCard.jsx
+import { useContext } from "react";
+import CurrentTemperatureUnitContext from "../../contexts/CurrentTemperatureUnitContext.js";
 import "./WeatherCard.css";
 
 export default function WeatherCard({
   city,
   country,
-  temp,
-  feelsLike,
+  temp,        // currently in °F (from your existing fetch)
+  feelsLike,   // currently in °F
   condition,
-  icon, // OpenWeather icon id like "04d"
+  icon,        // e.g. "04d"
 }) {
-  // Avoid crashing before data loads
+  const { currentTemperatureUnit } = useContext(CurrentTemperatureUnitContext);
+
   const location = [city, country].filter(Boolean).join(", ");
-  const temperature = Number.isFinite(temp) ? temp : "--";
-  const feels = Number.isFinite(feelsLike) ? feelsLike : null;
+  const unitLabel = `°${currentTemperatureUnit}`;
 
-  // Sprint 10: fixed to Fahrenheit
-  const unitLabel = "°F";
+  // base (F) coming from your API usage today
+  const tempF = Number.isFinite(temp) ? temp : null;
+  const feelsF = Number.isFinite(feelsLike) ? feelsLike : null;
 
-  const iconUrl = icon
-    ? `https://openweathermap.org/img/wn/${icon}@2x.png`
-    : null;
+  // compute C locally when needed
+  const toC = (f) => (Number.isFinite(f) ? Math.round((f - 32) * 5 / 9) : null);
+
+  const shownTemp  = currentTemperatureUnit === "F" ? tempF  : toC(tempF);
+  const shownFeels = currentTemperatureUnit === "F" ? feelsF : toC(feelsF);
+
+  const iconUrl = icon ? `https://openweathermap.org/img/wn/${icon}@2x.png` : null;
 
   return (
     <section className="weather">
       <div className="weather__content">
         <div className="weather__temp">
-          <span className="weather__temp-value">{temperature}</span>
+          <span className="weather__temp-value">
+            {Number.isFinite(shownTemp) ? shownTemp : "--"}
+          </span>
           <span className="weather__temp-unit">{unitLabel}</span>
         </div>
 
@@ -33,11 +42,10 @@ export default function WeatherCard({
           <div className="weather__location">{location || "—"}</div>
           <div className="weather__condition">
             {condition || "—"}
-            {Number.isFinite(feels) && (
+            {Number.isFinite(shownFeels) && (
               <span className="weather__feels">
                 {" "}
-                · feels like {feels}
-                {unitLabel}
+                · feels like {shownFeels}{unitLabel}
               </span>
             )}
           </div>
