@@ -1,0 +1,21 @@
+/* src/components/SideBar/SideBar.css */
+.sidebar {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fff;
+  text-align: center;
+}
+.sidebar__avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 12px;
+}
+.sidebar__name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}

@@ -1,0 +1,27 @@
+/* src/components/Profile/Profile.css */
+.profile {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+}
+
+.profile__title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.profile__hint {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+@media (max-width: 800px) {
+  .profile {
+    grid-template-columns: 1fr;
+  }
+}
