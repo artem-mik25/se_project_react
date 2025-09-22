@@ -2,10 +2,9 @@
 import { useEffect } from "react";
 import "./ItemModal.css";
 
-export default function ItemModal({ item, onClose, onLike, onDelete }) {
+export default function ItemModal({ item, onClose, onLike, onRequestDelete }) {
   useEffect(() => {
     if (!item) return;
-
     const onEsc = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onEsc);
     return () => window.removeEventListener("keydown", onEsc);
@@ -28,11 +27,7 @@ export default function ItemModal({ item, onClose, onLike, onDelete }) {
           ✕
         </button>
 
-        <img
-          src={item.link}
-          alt={item.name}
-          className="item-modal__image"
-        />
+        <img src={item.link} alt={item.name} className="item-modal__image" />
 
         <h3 className="item-modal__title">{item.name}</h3>
         <p className="item-modal__meta">
@@ -42,7 +37,9 @@ export default function ItemModal({ item, onClose, onLike, onDelete }) {
         <div className="item-modal__actions">
           <button
             type="button"
-            className={`item-modal__btn ${item.liked ? "item-modal__btn--liked" : ""}`}
+            className={`item-modal__btn ${
+              item.liked ? "item-modal__btn--liked" : ""
+            }`}
             onClick={() => onLike?.(item._id)}
           >
             {item.liked ? "♥ Liked" : "♡ Like"}
@@ -51,10 +48,7 @@ export default function ItemModal({ item, onClose, onLike, onDelete }) {
           <button
             type="button"
             className="item-modal__btn item-modal__btn--danger"
-            onClick={() => {
-              onDelete?.(item._id);
-              onClose();
-            }}
+            onClick={() => onRequestDelete?.(item)}
           >
             Delete
           </button>
