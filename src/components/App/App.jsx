@@ -2,187 +2,216 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Header from "../Header/Header.jsx";
 import Main from "../Main/Main.jsx";
 import Footer from "../Footer/Footer.jsx";
 import ItemModal from "../ItemModal/ItemModal.jsx";
-import ModalWithForm from "../ModalWithForm/ModalWithForm.jsx";
+import AddItemModal from "../AddItemModal/AddItemModal.jsx";
+import Profile from "../Profile/Profile.jsx";
+import DeleteConfirmationModal from "../DeleteConfirmationModal/DeleteConfirmationModal.jsx";
 
-import { COORDS, defaultClothingItems } from "../../utils/constants.js";
+import { COORDS } from "../../utils/constants.js";
 import { fetchWeather, classifyTempF } from "../../utils/weatherApi.js";
+import CurrentTemperatureUnitContext from "../../contexts/CurrentTemperatureUnitContext.js";
+
+// API layer (json-server)
+import { getItems, addItem, deleteItem } from "../../utils/api.js";
 
 export default function App() {
-  // -------- App state (Sprint 10) --------
-  const [weather, setWeather] = useState(null); // { city, country, temp, feelsLike, condition, icon, units }
+  // -------- App state --------
+  const [weather, setWeather] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [items, setItems] = useState([]); // default clothing items
+  const [items, setItems] = useState([]);
   const [showAll, setShowAll] = useState(false);
 
   // Modals
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  // -------- Mount-only weather fetch (Fahrenheit) --------
+  // Delete confirmation state
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [itemPendingDelete, setItemPendingDelete] = useState(null);
+
+  // -------- Temperature unit (context) --------
+  const [currentTemperatureUnit, setCurrentTemperatureUnit] = useState("F");
+  const handleToggleSwitchChange = () =>
+    setCurrentTemperatureUnit((u) => (u === "F" ? "C" : "F"));
+
+  // -------- Weather + Items fetch --------
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       try {
         setIsLoading(true);
+
+        // Weather
         const data = await fetchWeather({
           latitude: COORDS.latitude,
           longitude: COORDS.longitude,
-          units: "imperial", // Sprint 10 requirement (°F)
+          units: "imperial", // keep F as base
         });
-        if (!cancelled) {
-          setWeather({ ...data, units: "imperial" });
-          setError("");
-        }
+        if (!cancelled) setWeather({ ...data, units: "imperial" });
+
+        // Items from mock API
+        const serverItems = await getItems();
+        if (!cancelled) setItems(serverItems);
+
+        if (!cancelled) setError("");
       } catch (e) {
-        if (!cancelled) setError(e?.message || "Failed to load weather");
+        if (!cancelled) setError(e?.message || "Failed to load data");
       } finally {
         if (!cancelled) setIsLoading(false);
       }
     }
 
-    // default clothing items appear on mount
-    setItems(defaultClothingItems);
     load();
-
     return () => {
       cancelled = true;
     };
   }, []);
 
-  // -------- Derived: weather type used for filtering in <Main> --------
+  // -------- Derived weatherType (still uses °F bands) --------
   const weatherType = useMemo(() => {
-    const temperature = weather?.temp;
-    return classifyTempF(Number.isFinite(temperature) ? temperature : NaN); // "hot" | "warm" | "cold"
+    const t = weather?.temp ?? weather?.temperature?.F;
+    return classifyTempF(Number.isFinite(t) ? t : NaN);
   }, [weather]);
 
   // -------- Handlers --------
   const handleOpenAdd = () => setIsAddOpen(true);
   const handleCloseAdd = () => setIsAddOpen(false);
 
+  const handleToggleShowAll = () => setShowAll((s) => !s);
+
   const handleCardClick = (item) => setSelectedItem(item);
   const handleCloseItemModal = () => setSelectedItem(null);
 
-  const handleToggleShowAll = () => setShowAll((s) => !s);
-
-  // Like / Delete handlers (used by cards and modal)
   const handleLikeItem = (id) =>
     setItems((prev) =>
       prev.map((it) => (it._id === id ? { ...it, liked: !it.liked } : it))
     );
 
-  const handleDeleteItem = (id) =>
-    setItems((prev) => prev.filter((it) => it._id !== id));
+  const handleDeleteItem = async (id) => {
+    try {
+      await deleteItem(id); // API delete by primary key
+      setItems((prev) => prev.filter((it) => it._id !== id));
+    } catch (e) {
+      setError(e.message);
+    }
+  };
 
-  // Add new item
-  const handleAddItem = ({ name, weather, link }) => {
-    const newItem = {
-      _id: Date.now(), // simple id for now
-      name,
-      weather,
-      link,
-      liked: false,
-    };
-    setItems((prev) => [newItem, ...prev]);
-    handleCloseAdd();
+  const handleAddItem = async ({ name, link, weather }) => {
+    try {
+      const created = await addItem({ name, link, weather });
+      setItems((prev) => [created, ...prev]);
+      handleCloseAdd();
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+
+  // Confirmation modal helpers
+  const openConfirmDelete = (item) => {
+    setItemPendingDelete(item);
+    setIsConfirmOpen(true);
+  };
+  const closeConfirmDelete = () => {
+    setIsConfirmOpen(false);
+    setItemPendingDelete(null);
+  };
+  const confirmDelete = async () => {
+    if (!itemPendingDelete) return;
+    try {
+      await handleDeleteItem(itemPendingDelete._id);
+    } finally {
+      // close confirm, and if it's the item currently open, close that too
+      closeConfirmDelete();
+      if (selectedItem && selectedItem._id === itemPendingDelete._id) {
+        setSelectedItem(null);
+      }
+    }
   };
 
   return (
-    <div className="app">
-      <Header city={weather?.city || "Loading…"} onAddItem={handleOpenAdd} />
+    <CurrentTemperatureUnitContext.Provider
+      value={{ currentTemperatureUnit, handleToggleSwitchChange }}
+    >
+      <BrowserRouter>
+        <Routes>
+          {/* Home (/) */}
+          <Route
+            path="/"
+            element={
+              <div className="app">
+                <Header city={weather?.city || "Loading…"} onAddItem={handleOpenAdd} />
 
-      {/* Status / errors */}
-      {error && <div className="status status--error">{error}</div>}
-      {isLoading && !weather && <div className="status">Loading weather…</div>}
+                {error && <div className="status status--error">{error}</div>}
+                {isLoading && !weather && <div className="status">Loading weather…</div>}
 
-      {/* Main holds WeatherCard + the garment grid; it does the filtering */}
-      <Main
-        weather={weather}
-        weatherType={weatherType}
-        items={items}
-        showAll={showAll}
-        onToggleShowAll={handleToggleShowAll}
-        onCardClick={handleCardClick}
-        onLikeItem={handleLikeItem}
-        onDeleteItem={handleDeleteItem}
-      />
+                <Main
+                  weather={weather}
+                  weatherType={weatherType}
+                  items={items}
+                  showAll={showAll}
+                  onToggleShowAll={handleToggleShowAll}
+                  onCardClick={handleCardClick}
+                  onLikeItem={handleLikeItem}
+                  onDeleteItem={handleDeleteItem}
+                />
 
-      <Footer />
+                <Footer />
+              </div>
+            }
+          />
 
-      {/* Add Garment modal */}
-      {isAddOpen && (
-        <ModalWithForm
-          title="New Garment"
-          name="add-garment"
-          buttonText="Add"
-          onClose={handleCloseAdd}
-          onSubmit={(e) => {
-            e.preventDefault();
-            const fd = new FormData(e.target);
-            handleAddItem({
-              name: fd.get("name")?.trim(),
-              weather: fd.get("weather"),
-              link: fd.get("imageUrl")?.trim(),
-            });
-          }}
-        >
-          <label className="modal__label">
-            Name
-            <input
-              className="modal__input"
-              type="text"
-              name="name"
-              placeholder="e.g., Beanie"
-              required
-              minLength="2"
-              maxLength="30"
-            />
-          </label>
+          {/* Profile (/profile) */}
+          <Route
+            path="/profile"
+            element={
+              <div className="app">
+                <Header city={weather?.city || "Loading…"} onAddItem={handleOpenAdd} />
+                <Profile
+                  items={items}
+                  onAddItem={handleOpenAdd}
+                  onCardClick={handleCardClick}
+                />
+                <Footer />
+              </div>
+            }
+          />
+        </Routes>
 
-          <fieldset className="modal__fieldset">
-            <legend className="modal__legend">Weather type</legend>
-            <label className="modal__radio">
-              <input type="radio" name="weather" value="hot" required /> Hot
-            </label>
-            <label className="modal__radio">
-              <input type="radio" name="weather" value="warm" /> Warm
-            </label>
-            <label className="modal__radio">
-              <input type="radio" name="weather" value="cold" /> Cold
-            </label>
-          </fieldset>
+        {/* Add Item modal */}
+        {isAddOpen && (
+          <AddItemModal
+            isOpen={isAddOpen}
+            onClose={handleCloseAdd}
+            onAddItem={handleAddItem}
+          />
+        )}
 
-          <label className="modal__label">
-            Image URL
-            <input
-              className="modal__input"
-              type="url"
-              name="imageUrl"
-              placeholder="https://example.com/item.png"
-              required
-            />
-          </label>
-        </ModalWithForm>
-      )}
+        {/* Item viewer modal */}
+        {selectedItem && (
+          <ItemModal
+            item={selectedItem}
+            onClose={handleCloseItemModal}
+            onLike={(id) => handleLikeItem(id)}
+            onRequestDelete={(item) => openConfirmDelete(item)}
+          />
+        )}
 
-      {/* Image modal */}
-      {selectedItem && (
-        <ItemModal
-          item={selectedItem}
-          onClose={handleCloseItemModal}
-          onLike={() => handleLikeItem(selectedItem._id)}
-          onDelete={() => {
-            handleDeleteItem(selectedItem._id);
-            handleCloseItemModal();
-          }}
+        {/* Delete confirmation modal */}
+        <DeleteConfirmationModal
+          isOpen={isConfirmOpen}
+          itemName={itemPendingDelete?.name}
+          onConfirm={confirmDelete}
+          onCancel={closeConfirmDelete}
         />
-      )}
-    </div>
+      </BrowserRouter>
+    </CurrentTemperatureUnitContext.Provider>
   );
 }
