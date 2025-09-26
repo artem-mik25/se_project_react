@@ -11,7 +11,7 @@ async function handle(res) {
 }
 
 function normalize(item) {
-  // keep your UI happy by ensuring _id exists
+  // Ensure every item has _id for the UI (json-server uses "id")
   return { _id: item._id ?? item.id, ...item };
 }
 
@@ -28,12 +28,12 @@ export function addItem({ name, link, weather }) {
     name,
     link,
     weather,
-    liked: false
+    liked: false,
   });
   return fetch(`${baseUrl}/items`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body
+    body,
   })
     .then(handle)
     .then(normalize);
@@ -45,4 +45,15 @@ export function deleteItem(id) {
     if (!res.ok) throw new Error(`API ${res.status}: delete failed`);
     return true;
   });
+}
+
+// NEW: toggle like state and persist
+export function setItemLiked(id, liked) {
+  return fetch(`${baseUrl}/items/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ liked }),
+  })
+    .then(handle)
+    .then(normalize);
 }

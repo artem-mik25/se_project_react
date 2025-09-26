@@ -2,6 +2,13 @@
 import { useEffect, useCallback } from "react";
 import "./ModalWithForm.css";
 
+/**
+ * Props:
+ *  - title, name, buttonText
+ *  - onClose(), onSubmit(e)
+ *  - children (form fields)
+ *  - isSubmitDisabled (boolean)
+ */
 export default function ModalWithForm({
   title = "Modal",
   name = "form",
@@ -9,8 +16,8 @@ export default function ModalWithForm({
   onClose,
   onSubmit,
   children,
+  isSubmitDisabled = false,
 }) {
-  // Close on Esc
   const handleKeyDown = useCallback(
     (e) => {
       if (e.key === "Escape") onClose?.();
@@ -23,22 +30,18 @@ export default function ModalWithForm({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  // Close when clicking the dark overlay
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose?.();
   };
 
   return (
     <div
-      className="modal"
+      className={`modal modal_type_${name}`}
       role="dialog"
       aria-modal="true"
       onMouseDown={handleOverlayClick}
     >
-      <div
-        className="modal__content"
-        onMouseDown={(e) => e.stopPropagation()}
-      >
+      <div className="modal__content" onMouseDown={(e) => e.stopPropagation()}>
         <button
           type="button"
           className="modal__close"
@@ -50,16 +53,16 @@ export default function ModalWithForm({
 
         <h2 className="modal__title">{title}</h2>
 
-        <form
-          className="modal__form"
-          name={name}
-          onSubmit={onSubmit}
-          noValidate
-        >
+        <form className="modal__form" name={name} onSubmit={onSubmit} noValidate>
           {children}
 
           <div className="modal__actions">
-            <button type="submit" className="modal__submit">
+            <button
+              type="submit"
+              className="modal__submit"
+              disabled={isSubmitDisabled}
+              aria-disabled={isSubmitDisabled}
+            >
               {buttonText}
             </button>
           </div>

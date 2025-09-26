@@ -1,8 +1,10 @@
 // src/components/App/App.jsx
+
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+// NOTE: added Navigate import
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Header from "../Header/Header.jsx";
 import Main from "../Main/Main.jsx";
@@ -16,8 +18,8 @@ import { COORDS } from "../../utils/constants.js";
 import { fetchWeather, classifyTempF } from "../../utils/weatherApi.js";
 import CurrentTemperatureUnitContext from "../../contexts/CurrentTemperatureUnitContext.js";
 
-// API layer (json-server)
-import { getItems, addItem, deleteItem } from "../../utils/api.js";
+// API (json-server)
+import { getItems, addItem, deleteItem, setItemLiked } from "../../utils/api.js";
 
 export default function App() {
   // -------- App state --------
@@ -53,17 +55,17 @@ export default function App() {
         const data = await fetchWeather({
           latitude: COORDS.latitude,
           longitude: COORDS.longitude,
-          units: "imperial", // keep F as base
+          units: "imperial",
         });
         if (!cancelled) setWeather({ ...data, units: "imperial" });
 
-        // Items from mock API
+        // Items from json-server
         const serverItems = await getItems();
         if (!cancelled) setItems(serverItems);
 
         if (!cancelled) setError("");
       } catch (e) {
-        if (!cancelled) setError(e?.message || "Failed to load data");
+        if (!cancelled) setError(e?.message || "Failed to fetch");
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -90,14 +92,33 @@ export default function App() {
   const handleCardClick = (item) => setSelectedItem(item);
   const handleCloseItemModal = () => setSelectedItem(null);
 
-  const handleLikeItem = (id) =>
+  const handleLikeItem = async (id) => {
+    const current = items.find((it) => it._id === id);
+    if (!current) return;
+
+    const nextLiked = !current.liked;
+
+    // optimistic UI update
     setItems((prev) =>
-      prev.map((it) => (it._id === id ? { ...it, liked: !it.liked } : it))
+      prev.map((it) => (it._id === id ? { ...it, liked: nextLiked } : it))
     );
+
+    try {
+      await setItemLiked(id, nextLiked); // persist to API
+    } catch (e) {
+      // rollback if API fails
+      setItems((prev) =>
+        prev.map((it) =>
+          it._id === id ? { ...it, liked: current.liked } : it
+        )
+      );
+      setError(e.message);
+    }
+  };
 
   const handleDeleteItem = async (id) => {
     try {
-      await deleteItem(id); // API delete by primary key
+      await deleteItem(id);
       setItems((prev) => prev.filter((it) => it._id !== id));
     } catch (e) {
       setError(e.message);
@@ -114,7 +135,7 @@ export default function App() {
     }
   };
 
-  // Confirmation modal helpers
+  // Confirm modal helpers
   const openConfirmDelete = (item) => {
     setItemPendingDelete(item);
     setIsConfirmOpen(true);
@@ -128,7 +149,6 @@ export default function App() {
     try {
       await handleDeleteItem(itemPendingDelete._id);
     } finally {
-      // close confirm, and if it's the item currently open, close that too
       closeConfirmDelete();
       if (selectedItem && selectedItem._id === itemPendingDelete._id) {
         setSelectedItem(null);
@@ -178,11 +198,16 @@ export default function App() {
                   items={items}
                   onAddItem={handleOpenAdd}
                   onCardClick={handleCardClick}
+                  onLikeItem={handleLikeItem}
+                  onDeleteItem={handleDeleteItem}
                 />
                 <Footer />
               </div>
             }
           />
+
+          {/* Catch-all: redirect unknown paths to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
         {/* Add Item modal */}

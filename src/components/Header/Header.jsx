@@ -15,9 +15,11 @@ export default function Header({ city = "—", onAddItem }) {
     <header className="header">
       <div className="header__inner">
         <div className="header__left">
+          {/* Logo navigates to home (/) */}
           <Link to="/" aria-label="Go to home">
             <Logo />
           </Link>
+
           <div className="header__date-location">
             {currentDate} · {city}
           </div>
@@ -25,6 +27,7 @@ export default function Header({ city = "—", onAddItem }) {
 
         <div className="header__right">
           <ToggleSwitch />
+
           <button
             type="button"
             className="header__add-btn"
@@ -33,7 +36,19 @@ export default function Header({ city = "—", onAddItem }) {
             + Add clothes
           </button>
 
-          <Link to="/profile" className="header__profile-link" aria-label="Go to profile" style={{display:"inline-flex",alignItems:"center",gap:"8px",textDecoration:"none",color:"inherit"}}>
+          {/* Profile info navigates to /profile */}
+          <Link
+            to="/profile"
+            className="header__profile-link"
+            aria-label="Go to profile"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              textDecoration: "none",
+              color: "inherit",
+            }}
+          >
             <img className="header__avatar" src={profilePic} alt="Artem Mikhaylov" />
             <span className="header__username">Artem Mikhaylov</span>
           </Link>

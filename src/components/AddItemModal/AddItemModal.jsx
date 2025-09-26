@@ -1,35 +1,60 @@
 // src/components/AddItemModal/AddItemModal.jsx
+import { useMemo } from "react";
 import useForm from "../../hooks/useForm.js";
 import ModalWithForm from "../ModalWithForm/ModalWithForm.jsx";
 
 export default function AddItemModal({ isOpen, onAddItem, onClose }) {
-  // form state
-  const { values, handleChange, reset, setValues } = useForm({
+  const { values, handleChange, reset } = useForm({
     name: "",
     imageUrl: "",
     weather: "",
   });
 
-  // close → also reset fields
+  const isNonEmpty = (s) => typeof s === "string" && s.trim().length > 0;
+  const isUrl = (s) => {
+    try {
+      const u = new URL(s);
+      return u.protocol === "http:" || u.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  const errors = useMemo(
+    () => ({
+      name:
+        isNonEmpty(values.name) && values.name.trim().length >= 2
+          ? ""
+          : "Please enter a name (min 2 characters).",
+      imageUrl: isUrl(values.imageUrl) ? "" : "Please enter a valid URL.",
+      weather: isNonEmpty(values.weather) ? "" : "Please choose a weather type.",
+    }),
+    [values]
+  );
+
+  const isValid = useMemo(
+    () => !errors.name && !errors.imageUrl && !errors.weather,
+    [errors]
+  );
+
   const handleClose = () => {
     reset();
     onClose?.();
   };
 
-  // submit → call parent handler, then reset on success
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { name, imageUrl, weather } = values;
-    if (!name || !imageUrl || !weather) return;
+    if (!isValid) return;
 
-    // parent will add the item; if successful, reset + close
-    const maybePromise = onAddItem?.({ name: name.trim(), link: imageUrl.trim(), weather });
-    // support both sync and async handlers
-    Promise.resolve(maybePromise).then(() => reset());
+    const payload = {
+      name: values.name.trim(),
+      link: values.imageUrl.trim(),
+      weather: values.weather,
+    };
+
+    const maybe = onAddItem?.(payload);
+    Promise.resolve(maybe).then(() => reset());
   };
-
-  // if you later want to prefill when opened, you could useEffect here
-  // for now, we keep it simple.
 
   if (!isOpen) return null;
 
@@ -40,6 +65,7 @@ export default function AddItemModal({ isOpen, onAddItem, onClose }) {
       buttonText="Add"
       onClose={handleClose}
       onSubmit={handleSubmit}
+      isSubmitDisabled={!isValid}
     >
       <label className="modal__label">
         Name
@@ -49,11 +75,16 @@ export default function AddItemModal({ isOpen, onAddItem, onClose }) {
           name="name"
           placeholder="e.g., Beanie"
           required
-          minLength="2"
-          maxLength="30"
+          minLength={2}
+          maxLength={30}
           value={values.name}
           onChange={handleChange}
         />
+        {errors.name && (
+          <span className="hint" role="alert" style={{ display: "block" }}>
+            {errors.name}
+          </span>
+        )}
       </label>
 
       <fieldset className="modal__fieldset">
@@ -92,6 +123,12 @@ export default function AddItemModal({ isOpen, onAddItem, onClose }) {
           />
           Cold
         </label>
+
+        {errors.weather && (
+          <span className="hint" role="alert" style={{ display: "block", marginTop: 6 }}>
+            {errors.weather}
+          </span>
+        )}
       </fieldset>
 
       <label className="modal__label">
@@ -105,6 +142,11 @@ export default function AddItemModal({ isOpen, onAddItem, onClose }) {
           value={values.imageUrl}
           onChange={handleChange}
         />
+        {errors.imageUrl && (
+          <span className="hint" role="alert" style={{ display: "block" }}>
+            {errors.imageUrl}
+          </span>
+        )}
       </label>
     </ModalWithForm>
   );
