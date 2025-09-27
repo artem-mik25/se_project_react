@@ -1,95 +1,146 @@
-WTWR: What to Wear
-📌 Overview
-WTWR (What to Wear) is a weather-based clothing recommendation app built with Vite and React.
-The app fetches real-time weather data and suggests appropriate clothing options based on the temperature and conditions.
+# WTWR (What to Wear?)
 
-🚀 Features
-Live Weather Data: Fetches current weather for a given location.
+A React + Vite application that shows weather and temperature-based clothing recommendations, with a mock JSON API for managing items. Built for TripleTen **Sprint 11 — React Routing & State Management**.
 
-Temperature-based Recommendations: Suggests clothing suited for the current temperature.
+---
 
-Interactive UI: Simple, responsive, and mobile-friendly interface.
+## ✨ Features
 
-Modular Components: Each UI part is built as a separate React component.
+- **WeatherCard** — current weather, feels like, and °F/°C toggle (via Context).
+- **Home (`/`)** — shows clothing **filtered by current weather** with a “Show all / Show by weather” toggle.
+- **Profile (`/profile`)** — shows **all** items unfiltered; includes `SideBar` and `ClothesSection`.
+- **Add item** — modal with controlled inputs (`useForm`), basic validation, persists to API.
+- **Like item** — heart toggle persisted to API.
+- **Delete item** — with a confirmation modal.
+- **Routing** — `/` and `/profile`, logo → `/`, profile info → `/profile`, and a catch-all redirect to `/`.
 
-Asset Management: Organized folder structure for images, styles, and components.
+---
 
-🛠️ Tech Stack
-Frontend: React, Vite
+## 🛠 Tech Stack
 
-Styling: CSS Modules
+- **React 18**, **Vite**
+- **React Router DOM 6**
+- **React Context** (temperature unit)
+- **json-server** (mock API)
+- **ESLint + Prettier**
+- Plain **CSS** (BEM-style component files)
 
-API: OpenWeatherMap (or similar)
+---
 
-Tooling: Node.js, npm
+## 📦 Project Structure (high level)
 
-📂 Project Structure
-csharp
-Copy
-Edit
-wtwr/
-├── public/              # Static assets
-├── src/
-│   ├── assets/          # Images and icons
-│   ├── components/      # Reusable components (Header, Footer, etc.)
-│   ├── styles/          # CSS files
-│   ├── App.jsx          # Main app component
-│   ├── main.jsx         # App entry point
-│   └── index.css        # Global styles
-├── index.html
-├── package.json
-└── README.md
-⚙️ Installation & Setup
-Clone the repository
+src/
+components/
+AddItemModal/
+ClothesSection/
+DeleteConfirmationModal/
+Footer/
+Header/
+ItemCard/
+ItemModal/
+Logo/
+Main/
+ModalWithForm/
+Profile/
+SideBar/
+ToggleSwitch/
+WeatherCard/
+contexts/
+CurrentTemperatureUnitContext.js
+hooks/
+useForm.js
+utils/
+api.js # GET/POST/DELETE/PATCH (like) against json-server
+weatherApi.js # fetchWeather returns both {F,C} + legacy temp in °F
+constants.js # COORDS only
+vendor/
+normalize.css
+fonts.css
+db.json # mock database (items)
 
-bash
-Copy
-Edit
-git clone https://github.com/your-username/wtwr.git
-cd wtwr
-Install dependencies
 
-bash
-Copy
-Edit
+---
+
+## ⚙️ Installation & Setup
+
+> **Requirements:** Node.js 18+ and npm
+
+1) **Clone & install**
+```bash
+git clone <your-repo-url>
+cd <your-repo-folder>
 npm install
-Run the app locally
 
-bash
-Copy
-Edit
+Create .env with your OpenWeather API key
+
+# .env
+VITE_API_KEY=YOUR_OPENWEATHER_API_KEY
+
+
+Start the mock API (json-server) — in Terminal #1
+
+npx json-server --watch db.json --port 3001
+
+
+API root: http://localhost:3001/
+
+Items endpoint: http://localhost:3001/items
+
+Start the React app — in Terminal #2
+
 npm run dev
-Build for production
 
-bash
-Copy
-Edit
-npm run build
-🌦️ API Configuration
-Sign up for a free account at OpenWeatherMap.
 
-Create an .env file in the root directory:
+App: http://localhost:3000
 
-env
-Copy
-Edit
-VITE_API_KEY=your_api_key_here
-In your API fetch call, reference:
+Keep both terminals running: one for the API (port 3001) and one for the app (port 3000).
 
-javascript
-Copy
-Edit
-import.meta.env.VITE_API_KEY
-📌 Components
-Header – Displays app name and navigation.
+🧪 Usage Notes
 
-Main – Shows weather info and clothing suggestions.
+Home (/) filters by current weather type:
 
-Footer – Contains copyright.
+If no items match (e.g., weather is warm but you only have hot/cold items), you’ll see “No items for this weather.”
 
-WeatherCard – Displays current temperature and weather condition.
+Click “Show all” to see everything.
 
-ClothingSuggestion – Lists recommended outfits.
+Profile (/profile) always lists all items (unfiltered).
 
-📜 License
-This project is open-source and available under the MIT License.
+Add item via + Add clothes / + Add new:
+
+Fill Name, Image URL, and select Weather (hot/warm/cold).
+
+The “Add” button stays disabled until inputs are valid.
+
+Like / Delete:
+
+Heart toggles persist to db.json.
+
+Delete asks for confirmation and then removes from db.json.
+
+🔧 Scripts
+npm run dev        # start Vite dev server (app on http://localhost:3000)
+npm run build      # production build
+npm run preview    # preview the production build
+
+
+Run the mock API separately:
+
+npx json-server --watch db.json --port 3001
+
+❓ Troubleshooting
+
+“Unexpected token '<' … is not valid JSON”
+You opened the app on http://localhost:3001
+ (the API). Use http://localhost:3000
+ for the app.
+
+Items don’t appear on the home page
+That’s expected if no items match today’s weather. Click “Show all” or add a matching item (e.g., “warm”).
+
+API 404 on delete
+Ensure your items in db.json use the key id (json-server’s primary key). The app normalizes to _id internally.
+
+🧑‍💻 Author
+
+Artem Mikhaylov
+© 2025 WTWR, powered by React

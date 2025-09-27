@@ -1,5 +1,5 @@
 // src/components/AddItemModal/AddItemModal.jsx
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import useForm from "../../hooks/useForm.js";
 import ModalWithForm from "../ModalWithForm/ModalWithForm.jsx";
 
@@ -10,6 +10,12 @@ export default function AddItemModal({ isOpen, onAddItem, onClose }) {
     weather: "",
   });
 
+  // Reset fields each time the modal opens
+  useEffect(() => {
+    if (isOpen) reset();
+  }, [isOpen, reset]);
+
+  // validation helpers
   const isNonEmpty = (s) => typeof s === "string" && s.trim().length > 0;
   const isUrl = (s) => {
     try {
@@ -38,11 +44,11 @@ export default function AddItemModal({ isOpen, onAddItem, onClose }) {
   );
 
   const handleClose = () => {
-    reset();
+    // already reset on open; just close
     onClose?.();
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isValid) return;
 
@@ -52,8 +58,9 @@ export default function AddItemModal({ isOpen, onAddItem, onClose }) {
       weather: values.weather,
     };
 
-    const maybe = onAddItem?.(payload);
-    Promise.resolve(maybe).then(() => reset());
+    const resultPromise = onAddItem?.(payload);
+    await Promise.resolve(resultPromise); // wait for parent to add
+    onClose?.(); // close after success (no setState after unmount)
   };
 
   if (!isOpen) return null;

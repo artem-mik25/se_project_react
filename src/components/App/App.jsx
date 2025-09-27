@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
-// NOTE: added Navigate import
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Header from "../Header/Header.jsx";
@@ -51,13 +50,12 @@ export default function App() {
       try {
         setIsLoading(true);
 
-        // Weather
+             // Weather
         const data = await fetchWeather({
           latitude: COORDS.latitude,
           longitude: COORDS.longitude,
-          units: "imperial",
         });
-        if (!cancelled) setWeather({ ...data, units: "imperial" });
+        if (!cancelled) setWeather(data);
 
         // Items from json-server
         const serverItems = await getItems();
