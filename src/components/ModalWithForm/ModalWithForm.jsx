@@ -36,7 +36,7 @@ export default function ModalWithForm({
 
   return (
     <div
-      className={`modal modal_type_${name}`}
+      className="modal"
       role="dialog"
       aria-modal="true"
       onMouseDown={handleOverlayClick}

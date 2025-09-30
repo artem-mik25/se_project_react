@@ -47,13 +47,14 @@ export default function Main({
         {filteredItems.length > 0 ? (
           <ul className="main__cards">
             {filteredItems.map((item) => (
-              <ItemCard
-                key={item._id}
-                item={item}
-                onClick={() => onCardClick(item)}
-                onLike={onLikeItem}
-                onDelete={onDeleteItem}
-              />
+              <li key={item._id}>
+                <ItemCard
+                  item={item}
+                  onClick={onCardClick}
+                  onLike={onLikeItem}
+                  onDelete={onDeleteItem}
+                />
+              </li>
             ))}
           </ul>
         ) : (

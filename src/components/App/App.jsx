@@ -76,10 +76,11 @@ export default function App() {
   }, []);
 
   // -------- Derived weatherType (still uses °F bands) --------
-  const weatherType = useMemo(() => {
-    const t = weather?.temp ?? weather?.temperature?.F;
-    return classifyTempF(Number.isFinite(t) ? t : NaN);
-  }, [weather]);
+const weatherType = useMemo(() => {
+  const temperature = weather?.temp ?? weather?.temperature?.F;
+  return classifyTempF(Number.isFinite(temperature) ? temperature : NaN);
+}, [weather]);
+
 
   // -------- Handlers --------
   const handleOpenAdd = () => setIsAddOpen(true);

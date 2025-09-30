@@ -11,21 +11,20 @@ export default function ItemCard({ item, onClick, onLike, onDelete }) {
         onClick={() => onClick(item)}
       />
       <p className="item-card__name">{item.name}</p>
-
       <div className="item-card__actions">
         <button
           className="item-card__like"
           aria-label="Like"
           onClick={() => onLike(item._id)}
         >
-          {item.liked ? "❤️" : "🤍"}
+          {item.liked ? "❤️" : "♡"}
         </button>
         <button
           className="item-card__delete"
           aria-label="Delete"
           onClick={() => onDelete(item._id)}
         >
-          🗑️
+          🗑
         </button>
       </div>
     </div>
