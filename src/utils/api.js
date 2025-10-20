@@ -22,9 +22,8 @@ export function getItems() {
 }
 
 export function addItem({ name, link, weather }) {
-  // json-server v1 expects "id" as primary key
+  // json-server v1 expects "_id" as primary key
   const body = JSON.stringify({
-    id: Date.now(),
     name,
     link,
     weather,

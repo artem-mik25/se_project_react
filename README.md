@@ -79,7 +79,7 @@ VITE_API_KEY=YOUR_OPENWEATHER_API_KEY
 
 Start the mock API (json-server) — in Terminal #1
 
-npx json-server --watch db.json --port 3001
+json-server --watch db.json --id _id --port 3001
 
 
 API root: http://localhost:3001/
@@ -125,7 +125,7 @@ npm run preview    # preview the production build
 
 Run the mock API separately:
 
-npx json-server --watch db.json --port 3001
+json-server --watch db.json --id _id --port 3001
 
 ❓ Troubleshooting
 

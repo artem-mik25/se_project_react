@@ -12,7 +12,7 @@ export default function AddItemModal({ isOpen, onAddItem, onClose }) {
 
   // Reset fields each time the modal opens
   useEffect(() => {
-    if (isOpen) reset();
+    if (!isOpen) reset();
   }, [isOpen, reset]);
 
   // validation helpers
