@@ -138,7 +138,7 @@ Items don’t appear on the home page
 That’s expected if no items match today’s weather. Click “Show all” or add a matching item (e.g., “warm”).
 
 API 404 on delete
-Ensure your items in db.json use the key id (json-server’s primary key). The app normalizes to _id internally.
+Ensure your items in db.json use the key _id (json-server's primary key). The app normalizes to _id internally.
 
 🧑‍💻 Author
 

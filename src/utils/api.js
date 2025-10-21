@@ -40,10 +40,9 @@ export function addItem({ name, link, weather }) {
 
 export function deleteItem(id) {
   // id is the primary key in json-server (we pass _id from UI)
-  return fetch(`${baseUrl}/items/${id}`, { method: "DELETE" }).then((res) => {
-    if (!res.ok) throw new Error(`API ${res.status}: delete failed`);
-    return true;
-  });
+  return fetch(`${baseUrl}/items/${id}`, { method: "DELETE" })
+    .then(handle)
+    .then(() => true);
 }
 
 // NEW: toggle like state and persist
