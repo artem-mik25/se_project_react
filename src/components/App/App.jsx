@@ -16,9 +16,12 @@ import DeleteConfirmationModal from "../DeleteConfirmationModal/DeleteConfirmati
 import { COORDS } from "../../utils/constants.js";
 import { fetchWeather, classifyTempF } from "../../utils/weatherApi.js";
 import CurrentTemperatureUnitContext from "../../contexts/CurrentTemperatureUnitContext.js";
+import { CurrentUserContext } from "../../contexts/CurrentUserContext.jsx";
+import LoginModal from "../LoginModal/LoginModal.jsx";
+import RegisterModal from "../RegisterModal/RegisterModal.jsx";
 
-// API (json-server)
-import { getItems, addItem, deleteItem, setItemLiked } from "../../utils/api.js";
+// API
+import { getItems, addItem, deleteItem, setItemLiked, signin, signup, getCurrentUser } from "../../utils/api.js";
 
 export default function App() {
   // -------- App state --------
@@ -36,6 +39,11 @@ export default function App() {
   // Delete confirmation state
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [itemPendingDelete, setItemPendingDelete] = useState(null);
+
+  // Auth state
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   // -------- Temperature unit (context) --------
   const [currentTemperatureUnit, setCurrentTemperatureUnit] = useState("F");
@@ -73,6 +81,19 @@ export default function App() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  // -------- Check auth on mount --------
+  useEffect(() => {
+    const token = localStorage.getItem("jwt");
+    if (!token) return;
+
+    getCurrentUser()
+      .then((user) => setCurrentUser(user))
+      .catch((err) => {
+        console.error("Failed to get current user:", err);
+        localStorage.removeItem("jwt");
+      });
   }, []);
 
   // -------- Derived weatherType (still uses °F bands) --------
@@ -124,14 +145,43 @@ const weatherType = useMemo(() => {
     }
   };
 
-  const handleAddItem = async ({ name, link, weather }) => {
+  const handleAddItem = async ({ name, imageUrl, weather }) => {
     try {
-      const created = await addItem({ name, link, weather });
+      const created = await addItem({ name, imageUrl, weather });
       setItems((prev) => [created, ...prev]);
       handleCloseAdd();
     } catch (e) {
       setError(e.message);
     }
+  };
+
+  // Auth handlers
+  const handleLogin = async ({ email, password }) => {
+    try {
+      const { token } = await signin({ email, password });
+      localStorage.setItem("jwt", token);
+      const user = await getCurrentUser();
+      setCurrentUser(user);
+      setIsLoginOpen(false);
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+
+  const handleRegister = async ({ name, avatar, email, password }) => {
+    try {
+      await signup({ name, avatar, email, password });
+      // Auto-login after successful registration
+      await handleLogin({ email, password });
+      setIsRegisterOpen(false);
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("jwt");
+    setCurrentUser(null);
   };
 
   // Confirm modal helpers
@@ -156,17 +206,23 @@ const weatherType = useMemo(() => {
   };
 
   return (
-    <CurrentTemperatureUnitContext.Provider
-      value={{ currentTemperatureUnit, handleToggleSwitchChange }}
-    >
-      <BrowserRouter>
-        <Routes>
-          {/* Home (/) */}
-          <Route
-            path="/"
-            element={
-              <div className="app">
-                <Header city={weather?.city || "Loading…"} onAddItem={handleOpenAdd} />
+    <CurrentUserContext.Provider value={currentUser}>
+      <CurrentTemperatureUnitContext.Provider
+        value={{ currentTemperatureUnit, handleToggleSwitchChange }}
+      >
+        <BrowserRouter>
+          <Routes>
+            {/* Home (/) */}
+            <Route
+              path="/"
+              element={
+                <div className="app">
+                  <Header
+                    city={weather?.city || "Loading…"}
+                    onAddItem={handleOpenAdd}
+                    onLogin={() => setIsLoginOpen(true)}
+                    onRegister={() => setIsRegisterOpen(true)}
+                  />
 
                 {error && <div className="status status--error">{error}</div>}
                 {isLoading && !weather && <div className="status">Loading weather…</div>}
@@ -192,13 +248,19 @@ const weatherType = useMemo(() => {
             path="/profile"
             element={
               <div className="app">
-                <Header city={weather?.city || "Loading…"} onAddItem={handleOpenAdd} />
+                <Header
+                  city={weather?.city || "Loading…"}
+                  onAddItem={handleOpenAdd}
+                  onLogin={() => setIsLoginOpen(true)}
+                  onRegister={() => setIsRegisterOpen(true)}
+                />
                 <Profile
                   items={items}
                   onAddItem={handleOpenAdd}
                   onCardClick={handleCardClick}
                   onLikeItem={handleLikeItem}
                   onDeleteItem={handleDeleteItem}
+                  onLogout={handleLogout}
                 />
                 <Footer />
               </div>
@@ -235,7 +297,29 @@ const weatherType = useMemo(() => {
           onConfirm={confirmDelete}
           onCancel={closeConfirmDelete}
         />
+
+        {/* Auth modals */}
+        <LoginModal
+          isOpen={isLoginOpen}
+          onClose={() => setIsLoginOpen(false)}
+          onLogin={handleLogin}
+          onSwitchToRegister={() => {
+            setIsLoginOpen(false);
+            setIsRegisterOpen(true);
+          }}
+        />
+
+        <RegisterModal
+          isOpen={isRegisterOpen}
+          onClose={() => setIsRegisterOpen(false)}
+          onRegister={handleRegister}
+          onSwitchToLogin={() => {
+            setIsRegisterOpen(false);
+            setIsLoginOpen(true);
+          }}
+        />
       </BrowserRouter>
-    </CurrentTemperatureUnitContext.Provider>
+      </CurrentTemperatureUnitContext.Provider>
+    </CurrentUserContext.Provider>
   );
 }

@@ -3,10 +3,10 @@ import "./Profile.css";
 import SideBar from "../SideBar/SideBar.jsx";
 import ClothesSection from "../ClothesSection/ClothesSection.jsx";
 
-export default function Profile({ items, onAddItem, onCardClick }) {
+export default function Profile({ items, onAddItem, onCardClick, onLogout }) {
   return (
     <main className="profile">
-      <SideBar />
+      <SideBar onLogout={onLogout} />
       <ClothesSection
         items={items}
         onAddItem={onAddItem}

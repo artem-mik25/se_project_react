@@ -27,7 +27,7 @@ export default function ItemModal({ item, onClose, onLike, onRequestDelete }) {
           ✕
         </button>
 
-        <img src={item.link} alt={item.name} className="item-modal__image" />
+        <img src={item.imageUrl} alt={item.name} className="item-modal__image" />
 
         <h3 className="item-modal__title">{item.name}</h3>
         <p className="item-modal__meta">

@@ -5,7 +5,7 @@ export default function ItemCard({ item, onClick, onLike, onDelete }) {
   return (
     <div className="item-card">
       <img
-        src={item.link}
+        src={item.imageUrl}
         alt={item.name}
         className="item-card__image"
         onClick={() => onClick(item)}

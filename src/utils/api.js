@@ -2,6 +2,23 @@
 
 const baseUrl = "http://localhost:3001";
 
+// Get token from localStorage
+function getToken() {
+  return localStorage.getItem("jwt");
+}
+
+// Get headers with optional authentication
+function getHeaders(needsAuth = false) {
+  const headers = { "Content-Type": "application/json" };
+  if (needsAuth) {
+    const token = getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return headers;
+}
+
 async function handle(res) {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -21,17 +38,15 @@ export function getItems() {
     .then((items) => items.map(normalize));
 }
 
-export function addItem({ name, link, weather }) {
-  // json-server v1 expects "_id" as primary key
+export function addItem({ name, imageUrl, weather }) {
   const body = JSON.stringify({
     name,
-    link,
+    imageUrl,
     weather,
-    liked: false,
   });
   return fetch(`${baseUrl}/items`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: getHeaders(true),
     body,
   })
     .then(handle)
@@ -39,19 +54,44 @@ export function addItem({ name, link, weather }) {
 }
 
 export function deleteItem(id) {
-  // id is the primary key in json-server (we pass _id from UI)
-  return fetch(`${baseUrl}/items/${id}`, { method: "DELETE" })
+  return fetch(`${baseUrl}/items/${id}`, {
+    method: "DELETE",
+    headers: getHeaders(true),
+  })
     .then(handle)
     .then(() => true);
 }
 
-// NEW: toggle like state and persist
+// Like/unlike item
 export function setItemLiked(id, liked) {
-  return fetch(`${baseUrl}/items/${id}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ liked }),
+  const method = liked ? "PUT" : "DELETE";
+  return fetch(`${baseUrl}/items/${id}/likes`, {
+    method,
+    headers: getHeaders(true),
   })
     .then(handle)
     .then(normalize);
+}
+
+// Auth functions
+export function signup({ name, avatar, email, password }) {
+  return fetch(`${baseUrl}/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, avatar, email, password }),
+  }).then(handle);
+}
+
+export function signin({ email, password }) {
+  return fetch(`${baseUrl}/signin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  }).then(handle);
+}
+
+export function getCurrentUser() {
+  return fetch(`${baseUrl}/users/me`, {
+    headers: getHeaders(true),
+  }).then(handle);
 }

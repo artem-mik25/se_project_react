@@ -54,7 +54,7 @@ export default function AddItemModal({ isOpen, onAddItem, onClose }) {
 
     const payload = {
       name: values.name.trim(),
-      link: values.imageUrl.trim(),
+      imageUrl: values.imageUrl.trim(),
       weather: values.weather,
     };
 
