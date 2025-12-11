@@ -144,3 +144,10 @@ Ensure your items in db.json use the key _id (json-server's primary key). The ap
 
 Artem Mikhaylov
 © 2025 WTWR, powered by React
+
+
+ ## Project Pitch Video
+ 
+ Check out [this video](> https://docs.google.com/document/d/1gXbbRhLVwvxKgdXNVFb-ZtOOmJxyb-UzRkGqArbMMIA/edit?usp=sharing 
+), where I describe my 
+ project and some challenges I faced while building it.
