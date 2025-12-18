@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pgrep:*)",
+      "Bash(npm start)",
+      "Bash(curl:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(git push:*)",
+      "Bash(npm run dev:*)",
+      "Bash(tee:*)",
+      "Bash(cat:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTQzNzEzNjQ0ZWU5ZmVjMzVlMzQwNjgiLCJpYXQiOjE3NjYwMjc2ODcsImV4cCI6MTc2NjYzMjQ4N30.LEXSavQFxaPbVYo7yZyRIB14QWQU2asE2EBiRxN3I5o\")",
+      "Bash(ITEM_ID=\"694371d744ee9fec35e3406c\")",
+      "Bash(git restore:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTQzNzEzNjQ0ZWU5ZmVjMzVlMzQwNjgiLCJpYXQiOjE3NjYwMjc2ODcsImV4cCI6MTc2NjYzMjQ4N30.LEXSavQFxaPbVYo7yZyRIB14QWQU2asE2EBiRxN3I5o\" ITEM_ID=\"69437410cc451cb362c20962\" curl:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTQzNzEzNjQ0ZWU5ZmVjMzVlMzQwNjgiLCJpYXQiOjE3NjYwMjc2ODcsImV4cCI6MTc2NjYzMjQ4N30.LEXSavQFxaPbVYo7yZyRIB14QWQU2asE2EBiRxN3I5o\" ITEM_ID=\"69437410cc451cb362c20962\" curl -X DELETE \"http://localhost:3001/items/$ITEM_ID/likes\" -H \"Authorization: Bearer $TOKEN\" -s)",
+      "Bash(ITEM_ID=\"69437410cc451cb362c20962\")"
+    ]
+  }
+}

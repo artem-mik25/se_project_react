@@ -16,6 +16,7 @@ export default function Header({ city = "—", onAddItem, onLogin, onRegister })
 
   // Use local avatar as fallback
   const avatarSrc = currentUser?.avatar || defaultAvatar;
+  const userInitial = currentUser?.name ? currentUser.name[0].toUpperCase() : "?";
 
   return (
     <header className="header">
@@ -57,7 +58,27 @@ export default function Header({ city = "—", onAddItem, onLogin, onRegister })
                   color: "inherit",
                 }}
               >
-                <img className="header__avatar" src={avatarSrc} alt={currentUser.name} />
+                {currentUser.avatar ? (
+                  <img className="header__avatar" src={avatarSrc} alt={currentUser.name} />
+                ) : (
+                  <div
+                    className="header__avatar header__avatar--placeholder"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      borderRadius: "50%",
+                      background: "#2f71e5",
+                      color: "white",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "18px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {userInitial}
+                  </div>
+                )}
                 <span className="header__username">{currentUser.name}</span>
               </Link>
             </>

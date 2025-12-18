@@ -1,8 +1,10 @@
 // src/components/ItemModal/ItemModal.jsx
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
+import { CurrentUserContext } from "../../contexts/CurrentUserContext.jsx";
 import "./ItemModal.css";
 
-export default function ItemModal({ item, onClose, onLike, onRequestDelete }) {
+export default function ItemModal({ item, onClose, onCardLike, onRequestDelete }) {
+  const currentUser = useContext(CurrentUserContext);
   useEffect(() => {
     if (!item) return;
     const onEsc = (e) => e.key === "Escape" && onClose();
@@ -15,6 +17,12 @@ export default function ItemModal({ item, onClose, onLike, onRequestDelete }) {
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose();
   };
+
+  // Check if the current user is the owner of the item
+  const isOwn = currentUser && item.owner === currentUser._id;
+
+  // Check if the item is liked by the current user
+  const isLiked = currentUser && item.likes && item.likes.some((id) => id === currentUser._id);
 
   return (
     <div className="item-modal__overlay" onClick={handleOverlayClick}>
@@ -35,23 +43,27 @@ export default function ItemModal({ item, onClose, onLike, onRequestDelete }) {
         </p>
 
         <div className="item-modal__actions">
-          <button
-            type="button"
-            className={`item-modal__btn ${
-              item.liked ? "item-modal__btn--liked" : ""
-            }`}
-            onClick={() => onLike?.(item._id)}
-          >
-            {item.liked ? "♥ Liked" : "♡ Like"}
-          </button>
+          {currentUser && (
+            <button
+              type="button"
+              className={`item-modal__btn ${
+                isLiked ? "item-modal__btn--liked" : ""
+              }`}
+              onClick={() => onCardLike?.({ id: item._id, isLiked })}
+            >
+              {isLiked ? "♥ Liked" : "♡ Like"}
+            </button>
+          )}
 
-          <button
-            type="button"
-            className="item-modal__btn item-modal__btn--danger"
-            onClick={() => onRequestDelete?.(item)}
-          >
-            Delete
-          </button>
+          {isOwn && (
+            <button
+              type="button"
+              className="item-modal__btn item-modal__btn--danger"
+              onClick={() => onRequestDelete?.(item)}
+            >
+              Delete
+            </button>
+          )}
         </div>
       </div>
     </div>

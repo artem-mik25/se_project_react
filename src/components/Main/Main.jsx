@@ -10,8 +10,7 @@ export default function Main({
   showAll,
   onToggleShowAll,
   onCardClick,
-  onLikeItem,
-  onDeleteItem,
+  onCardLike,
 }) {
   // Filter items by weatherType unless "Show all" is on
   const filteredItems = showAll
@@ -51,8 +50,7 @@ export default function Main({
                 <ItemCard
                   item={item}
                   onClick={onCardClick}
-                  onLike={onLikeItem}
-                  onDelete={onDeleteItem}
+                  onCardLike={onCardLike}
                 />
               </li>
             ))}

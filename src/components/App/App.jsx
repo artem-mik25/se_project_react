@@ -12,16 +12,19 @@ import ItemModal from "../ItemModal/ItemModal.jsx";
 import AddItemModal from "../AddItemModal/AddItemModal.jsx";
 import Profile from "../Profile/Profile.jsx";
 import DeleteConfirmationModal from "../DeleteConfirmationModal/DeleteConfirmationModal.jsx";
+import LoginModal from "../LoginModal/LoginModal.jsx";
+import RegisterModal from "../RegisterModal/RegisterModal.jsx";
+import EditProfileModal from "../EditProfileModal/EditProfileModal.jsx";
+import ProtectedRoute from "../ProtectedRoute/ProtectedRoute.jsx";
 
 import { COORDS } from "../../utils/constants.js";
 import { fetchWeather, classifyTempF } from "../../utils/weatherApi.js";
 import CurrentTemperatureUnitContext from "../../contexts/CurrentTemperatureUnitContext.js";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext.jsx";
-import LoginModal from "../LoginModal/LoginModal.jsx";
-import RegisterModal from "../RegisterModal/RegisterModal.jsx";
 
 // API
-import { getItems, addItem, deleteItem, setItemLiked, signin, signup, getCurrentUser } from "../../utils/api.js";
+import { getItems, addItem, deleteItem, addCardLike, removeCardLike } from "../../utils/api.js";
+import { signin, signup, getCurrentUser, updateProfile } from "../../utils/auth.js";
 
 export default function App() {
   // -------- App state --------
@@ -42,8 +45,10 @@ export default function App() {
 
   // Auth state
   const [currentUser, setCurrentUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   // -------- Temperature unit (context) --------
   const [currentTemperatureUnit, setCurrentTemperatureUnit] = useState("F");
@@ -86,13 +91,20 @@ export default function App() {
   // -------- Check auth on mount --------
   useEffect(() => {
     const token = localStorage.getItem("jwt");
-    if (!token) return;
+    if (!token) {
+      setIsLoggedIn(false);
+      return;
+    }
 
-    getCurrentUser()
-      .then((user) => setCurrentUser(user))
+    getCurrentUser(token)
+      .then((user) => {
+        setCurrentUser(user);
+        setIsLoggedIn(true);
+      })
       .catch((err) => {
         console.error("Failed to get current user:", err);
         localStorage.removeItem("jwt");
+        setIsLoggedIn(false);
       });
   }, []);
 
@@ -112,28 +124,23 @@ const weatherType = useMemo(() => {
   const handleCardClick = (item) => setSelectedItem(item);
   const handleCloseItemModal = () => setSelectedItem(null);
 
-  const handleLikeItem = async (id) => {
-    const current = items.find((it) => it._id === id);
-    if (!current) return;
+  const handleCardLike = ({ id, isLiked }) => {
+    const token = localStorage.getItem("jwt");
+    if (!token || !currentUser) return;
 
-    const nextLiked = !current.liked;
+    // Check if this card is not currently liked
+    const apiCall = !isLiked ? addCardLike(id) : removeCardLike(id);
 
-    // optimistic UI update
-    setItems((prev) =>
-      prev.map((it) => (it._id === id ? { ...it, liked: nextLiked } : it))
-    );
-
-    try {
-      await setItemLiked(id, nextLiked); // persist to API
-    } catch (e) {
-      // rollback if API fails
-      setItems((prev) =>
-        prev.map((it) =>
-          it._id === id ? { ...it, liked: current.liked } : it
-        )
-      );
-      setError(e.message);
-    }
+    apiCall
+      .then((updatedCard) => {
+        setItems((cards) =>
+          cards.map((item) => (item._id === id ? updatedCard : item))
+        );
+      })
+      .catch((err) => {
+        console.error("Failed to like/unlike item:", err);
+        setError(err.message);
+      });
   };
 
   const handleDeleteItem = async (id) => {
@@ -160,8 +167,9 @@ const weatherType = useMemo(() => {
     try {
       const { token } = await signin({ email, password });
       localStorage.setItem("jwt", token);
-      const user = await getCurrentUser();
+      const user = await getCurrentUser(token);
       setCurrentUser(user);
+      setIsLoggedIn(true);
       setIsLoginOpen(false);
     } catch (e) {
       setError(e.message);
@@ -179,9 +187,23 @@ const weatherType = useMemo(() => {
     }
   };
 
+  const handleUpdateProfile = async ({ name, avatar }) => {
+    try {
+      const token = localStorage.getItem("jwt");
+      if (!token) throw new Error("No token found");
+
+      const updatedUser = await updateProfile({ name, avatar }, token);
+      setCurrentUser(updatedUser);
+      setIsEditProfileOpen(false);
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("jwt");
     setCurrentUser(null);
+    setIsLoggedIn(false);
   };
 
   // Confirm modal helpers
@@ -234,8 +256,7 @@ const weatherType = useMemo(() => {
                   showAll={showAll}
                   onToggleShowAll={handleToggleShowAll}
                   onCardClick={handleCardClick}
-                  onLikeItem={handleLikeItem}
-                  onDeleteItem={handleDeleteItem}
+                  onCardLike={handleCardLike}
                 />
 
                 <Footer />
@@ -243,27 +264,29 @@ const weatherType = useMemo(() => {
             }
           />
 
-          {/* Profile (/profile) */}
+          {/* Profile (/profile) - Protected Route */}
           <Route
             path="/profile"
             element={
-              <div className="app">
-                <Header
-                  city={weather?.city || "Loading…"}
-                  onAddItem={handleOpenAdd}
-                  onLogin={() => setIsLoginOpen(true)}
-                  onRegister={() => setIsRegisterOpen(true)}
-                />
-                <Profile
-                  items={items}
-                  onAddItem={handleOpenAdd}
-                  onCardClick={handleCardClick}
-                  onLikeItem={handleLikeItem}
-                  onDeleteItem={handleDeleteItem}
-                  onLogout={handleLogout}
-                />
-                <Footer />
-              </div>
+              <ProtectedRoute>
+                <div className="app">
+                  <Header
+                    city={weather?.city || "Loading…"}
+                    onAddItem={handleOpenAdd}
+                    onLogin={() => setIsLoginOpen(true)}
+                    onRegister={() => setIsRegisterOpen(true)}
+                  />
+                  <Profile
+                    items={items}
+                    onAddItem={handleOpenAdd}
+                    onCardClick={handleCardClick}
+                    onCardLike={handleCardLike}
+                    onLogout={handleLogout}
+                    onEditProfile={() => setIsEditProfileOpen(true)}
+                  />
+                  <Footer />
+                </div>
+              </ProtectedRoute>
             }
           />
 
@@ -285,7 +308,7 @@ const weatherType = useMemo(() => {
           <ItemModal
             item={selectedItem}
             onClose={handleCloseItemModal}
-            onLike={(id) => handleLikeItem(id)}
+            onCardLike={handleCardLike}
             onRequestDelete={(item) => openConfirmDelete(item)}
           />
         )}
@@ -317,6 +340,13 @@ const weatherType = useMemo(() => {
             setIsRegisterOpen(false);
             setIsLoginOpen(true);
           }}
+        />
+
+        {/* Edit Profile modal */}
+        <EditProfileModal
+          isOpen={isEditProfileOpen}
+          onClose={() => setIsEditProfileOpen(false)}
+          onUpdateProfile={handleUpdateProfile}
         />
       </BrowserRouter>
       </CurrentTemperatureUnitContext.Provider>

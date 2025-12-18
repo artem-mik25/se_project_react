@@ -1,7 +1,21 @@
 // src/components/ItemCard/ItemCard.jsx
+import { useContext } from "react";
 import "./ItemCard.css";
+import { CurrentUserContext } from "../../contexts/CurrentUserContext.jsx";
 
-export default function ItemCard({ item, onClick, onLike, onDelete }) {
+export default function ItemCard({ item, onClick, onCardLike }) {
+  const currentUser = useContext(CurrentUserContext);
+
+  // Check if the item is liked by the current user
+  const isLiked =
+    currentUser && item.likes && item.likes.some((id) => id === currentUser._id);
+
+  const handleLike = () => {
+    if (onCardLike && currentUser) {
+      onCardLike({ id: item._id, isLiked });
+    }
+  };
+
   return (
     <div className="item-card">
       <img
@@ -10,22 +24,17 @@ export default function ItemCard({ item, onClick, onLike, onDelete }) {
         className="item-card__image"
         onClick={() => onClick(item)}
       />
-      <p className="item-card__name">{item.name}</p>
-      <div className="item-card__actions">
-        <button
-          className="item-card__like"
-          aria-label="Like"
-          onClick={() => onLike(item._id)}
-        >
-          {item.liked ? "❤️" : "♡"}
-        </button>
-        <button
-          className="item-card__delete"
-          aria-label="Delete"
-          onClick={() => onDelete(item._id)}
-        >
-          🗑
-        </button>
+      <div className="item-card__footer">
+        <p className="item-card__name">{item.name}</p>
+        {currentUser && (
+          <button
+            className={`item-card__like ${isLiked ? "item-card__like--active" : ""}`}
+            aria-label="Like"
+            onClick={handleLike}
+          >
+            {isLiked ? "❤️" : "♡"}
+          </button>
+        )}
       </div>
     </div>
   );

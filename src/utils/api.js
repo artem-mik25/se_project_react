@@ -62,36 +62,22 @@ export function deleteItem(id) {
     .then(() => true);
 }
 
-// Like/unlike item
-export function setItemLiked(id, liked) {
-  const method = liked ? "PUT" : "DELETE";
+// Add like to item
+export function addCardLike(id) {
   return fetch(`${baseUrl}/items/${id}/likes`, {
-    method,
+    method: "PUT",
     headers: getHeaders(true),
   })
     .then(handle)
     .then(normalize);
 }
 
-// Auth functions
-export function signup({ name, avatar, email, password }) {
-  return fetch(`${baseUrl}/signup`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, avatar, email, password }),
-  }).then(handle);
-}
-
-export function signin({ email, password }) {
-  return fetch(`${baseUrl}/signin`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  }).then(handle);
-}
-
-export function getCurrentUser() {
-  return fetch(`${baseUrl}/users/me`, {
+// Remove like from item
+export function removeCardLike(id) {
+  return fetch(`${baseUrl}/items/${id}/likes`, {
+    method: "DELETE",
     headers: getHeaders(true),
-  }).then(handle);
+  })
+    .then(handle)
+    .then(normalize);
 }
