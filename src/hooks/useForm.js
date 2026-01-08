@@ -1,6 +1,6 @@
 // src/hooks/useForm.js
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 
 /**
  * Simple form state hook:
@@ -8,6 +8,7 @@ import { useState, useCallback } from "react";
  */
 export default function useForm(initialValues = {}) {
   const [values, setValues] = useState(initialValues);
+  const initialValuesRef = useRef(initialValues);
 
   const handleChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
@@ -17,7 +18,7 @@ export default function useForm(initialValues = {}) {
     }));
   }, []);
 
-  const reset = useCallback(() => setValues(initialValues), [initialValues]);
+  const reset = useCallback(() => setValues(initialValuesRef.current), []);
 
   return { values, handleChange, reset, setValues };
 }
