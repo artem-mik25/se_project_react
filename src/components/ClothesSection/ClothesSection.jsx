@@ -10,7 +10,7 @@ export default function ClothesSection({
   onCardClick,
   onCardLike
 }) {
-  const currentUser = useContext(CurrentUserContext);
+  const { currentUser } = useContext(CurrentUserContext);
 
   // Filter items to show only current user's items
   const userItems = items.filter(

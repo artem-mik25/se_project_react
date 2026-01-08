@@ -5,7 +5,7 @@ import { CurrentUserContext } from "../../contexts/CurrentUserContext.jsx";
 import defaultAvatar from "../../assets/Me.png";
 
 export default function SideBar({ onLogout, onEditProfile }) {
-  const currentUser = useContext(CurrentUserContext);
+  const { currentUser } = useContext(CurrentUserContext);
 
   if (!currentUser) {
     return (

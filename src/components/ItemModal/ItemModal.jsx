@@ -4,7 +4,7 @@ import { CurrentUserContext } from "../../contexts/CurrentUserContext.jsx";
 import "./ItemModal.css";
 
 export default function ItemModal({ item, onClose, onCardLike, onRequestDelete }) {
-  const currentUser = useContext(CurrentUserContext);
+  const { currentUser } = useContext(CurrentUserContext);
   useEffect(() => {
     if (!item) return;
     const onEsc = (e) => e.key === "Escape" && onClose();

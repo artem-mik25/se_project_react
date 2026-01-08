@@ -21,8 +21,8 @@ export default function RegisterModal({ isOpen, onRegister, onClose, onSwitchToL
   const isValidUrl = (url) => {
     if (!url) return true; // Avatar is optional
     try {
-      const u = new URL(url);
-      return u.protocol === "http:" || u.protocol === "https:";
+      const parsedUrl = new URL(url);
+      return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
     } catch {
       return false;
     }
@@ -55,9 +55,13 @@ export default function RegisterModal({ isOpen, onRegister, onClose, onSwitchToL
       avatar: values.avatar || "https://ui-avatars.com/api/?name=" + encodeURIComponent(values.name) + "&size=200&background=0D8ABC&color=fff",
     };
 
-    const resultPromise = onRegister?.(payload);
-    await Promise.resolve(resultPromise);
-    onClose?.();
+    try {
+      await onRegister?.(payload);
+      onClose?.(); // Only close on success
+    } catch (error) {
+      // Don't close modal on error - let user retry
+      console.error("Failed to register:", error);
+    }
   };
 
   if (!isOpen) return null;

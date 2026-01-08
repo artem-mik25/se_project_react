@@ -19,8 +19,8 @@ export default function AddItemModal({ isOpen, onAddItem, onClose }) {
   const isNonEmpty = (s) => typeof s === "string" && s.trim().length > 0;
   const isUrl = (s) => {
     try {
-      const u = new URL(s);
-      return u.protocol === "http:" || u.protocol === "https:";
+      const url = new URL(s);
+      return url.protocol === "http:" || url.protocol === "https:";
     } catch {
       return false;
     }
@@ -58,9 +58,13 @@ export default function AddItemModal({ isOpen, onAddItem, onClose }) {
       weather: values.weather,
     };
 
-    const resultPromise = onAddItem?.(payload);
-    await Promise.resolve(resultPromise); // wait for parent to add
-    onClose?.(); // close after success (no setState after unmount)
+    try {
+      await onAddItem?.(payload);
+      onClose?.(); // Only close on success
+    } catch (error) {
+      // Don't close modal on error - let user retry
+      console.error("Failed to add item:", error);
+    }
   };
 
   if (!isOpen) return null;

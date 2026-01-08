@@ -6,7 +6,7 @@ import { CurrentUserContext } from "../../contexts/CurrentUserContext.jsx";
 import "./EditProfileModal.css";
 
 export default function EditProfileModal({ isOpen, onUpdateProfile, onClose }) {
-  const currentUser = useContext(CurrentUserContext);
+  const { currentUser } = useContext(CurrentUserContext);
 
   const { values, handleChange, reset, setValues } = useForm({
     name: "",
@@ -33,8 +33,8 @@ export default function EditProfileModal({ isOpen, onUpdateProfile, onClose }) {
   const isUrl = (s) => {
     if (!s || s.trim() === "") return true; // Avatar is optional
     try {
-      const u = new URL(s);
-      return u.protocol === "http:" || u.protocol === "https:";
+      const url = new URL(s);
+      return url.protocol === "http:" || url.protocol === "https:";
     } catch {
       return false;
     }
@@ -69,9 +69,13 @@ export default function EditProfileModal({ isOpen, onUpdateProfile, onClose }) {
       avatar: values.avatar.trim(),
     };
 
-    const resultPromise = onUpdateProfile?.(payload);
-    await Promise.resolve(resultPromise);
-    onClose?.();
+    try {
+      await onUpdateProfile?.(payload);
+      onClose?.(); // Only close on success
+    } catch (error) {
+      // Don't close modal on error - let user retry
+      console.error("Failed to update profile:", error);
+    }
   };
 
   if (!isOpen) return null;

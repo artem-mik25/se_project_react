@@ -8,7 +8,7 @@ import { CurrentUserContext } from "../../contexts/CurrentUserContext.jsx";
 import defaultAvatar from "../../assets/Me.png";
 
 export default function Header({ city = "—", onAddItem, onLogin, onRegister }) {
-  const currentUser = useContext(CurrentUserContext);
+  const { currentUser } = useContext(CurrentUserContext);
   const currentDate = new Date().toLocaleString("default", {
     month: "long",
     day: "numeric",

@@ -4,7 +4,7 @@ import "./ItemCard.css";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext.jsx";
 
 export default function ItemCard({ item, onClick, onCardLike }) {
-  const currentUser = useContext(CurrentUserContext);
+  const { currentUser } = useContext(CurrentUserContext);
 
   // Check if the item is liked by the current user
   const isLiked =

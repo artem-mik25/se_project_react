@@ -33,9 +33,13 @@ export default function LoginModal({ isOpen, onLogin, onClose, onSwitchToRegiste
     e.preventDefault();
     if (!isValid) return;
 
-    const resultPromise = onLogin?.({ email: values.email, password: values.password });
-    await Promise.resolve(resultPromise);
-    onClose?.();
+    try {
+      await onLogin?.({ email: values.email, password: values.password });
+      onClose?.(); // Only close on success
+    } catch (error) {
+      // Don't close modal on error - let user retry
+      console.error("Failed to log in:", error);
+    }
   };
 
   if (!isOpen) return null;
