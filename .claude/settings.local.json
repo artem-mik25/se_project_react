@@ -16,7 +16,13 @@
       "Bash(git restore:*)",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTQzNzEzNjQ0ZWU5ZmVjMzVlMzQwNjgiLCJpYXQiOjE3NjYwMjc2ODcsImV4cCI6MTc2NjYzMjQ4N30.LEXSavQFxaPbVYo7yZyRIB14QWQU2asE2EBiRxN3I5o\" ITEM_ID=\"69437410cc451cb362c20962\" curl:*)",
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTQzNzEzNjQ0ZWU5ZmVjMzVlMzQwNjgiLCJpYXQiOjE3NjYwMjc2ODcsImV4cCI6MTc2NjYzMjQ4N30.LEXSavQFxaPbVYo7yZyRIB14QWQU2asE2EBiRxN3I5o\" ITEM_ID=\"69437410cc451cb362c20962\" curl -X DELETE \"http://localhost:3001/items/$ITEM_ID/likes\" -H \"Authorization: Bearer $TOKEN\" -s)",
-      "Bash(ITEM_ID=\"69437410cc451cb362c20962\")"
+      "Bash(ITEM_ID=\"69437410cc451cb362c20962\")",
+      "Bash(kill:*)",
+      "Bash(lsof:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTYwMmE5ODQ0YzEyNTAwMjhkNjBhNTYiLCJpYXQiOjE3Njc5MTAwNDgsImV4cCI6MTc2ODUxNDg0OH0.ipcqqqVM-mWsjjZx5KqJ5f2Pt_NPtJmU9R-tuT4tdnM\")",
+      "Bash(ITEM_ID=\"69602ae344c1250028d60a5c\")",
+      "Bash(npm run lint:*)",
+      "Bash(npm run build:*)"
     ]
   }
 }

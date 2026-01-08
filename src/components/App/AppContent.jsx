@@ -44,7 +44,6 @@ export default function AppContent() {
 
   // Auth state
   const [currentUser, setCurrentUser] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
@@ -92,7 +91,6 @@ export default function AppContent() {
   useEffect(() => {
     const token = localStorage.getItem("jwt");
     if (!token) {
-      setIsLoggedIn(false);
       setIsAuthLoading(false);
       return;
     }
@@ -100,12 +98,10 @@ export default function AppContent() {
     getCurrentUser(token)
       .then((user) => {
         setCurrentUser(user);
-        setIsLoggedIn(true);
       })
       .catch((err) => {
         console.error("Failed to get current user:", err);
         localStorage.removeItem("jwt");
-        setIsLoggedIn(false);
       })
       .finally(() => {
         setIsAuthLoading(false);
@@ -174,7 +170,6 @@ export default function AppContent() {
       localStorage.setItem("jwt", token);
       const user = await getCurrentUser(token);
       setCurrentUser(user);
-      setIsLoggedIn(true);
       setIsLoginOpen(false);
       navigate("/"); // Redirect to home after successful login
     } catch (e) {
@@ -213,7 +208,6 @@ export default function AppContent() {
   const handleLogout = () => {
     localStorage.removeItem("jwt");
     setCurrentUser(null);
-    setIsLoggedIn(false);
   };
 
   // Confirm modal helpers
