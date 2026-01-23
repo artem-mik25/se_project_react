@@ -236,22 +236,22 @@ export default function AppContent() {
       <CurrentTemperatureUnitContext.Provider
         value={{ currentTemperatureUnit, handleToggleSwitchChange }}
       >
-        <Routes>
-          {/* Home (/) */}
-          <Route
-            path="/"
-            element={
-              <div className="app">
-                <Header
-                  city={weather?.city || "Loading…"}
-                  onAddItem={handleOpenAdd}
-                  onLogin={() => setIsLoginOpen(true)}
-                  onRegister={() => setIsRegisterOpen(true)}
-                />
+        <div className="app">
+          <Header
+            city={weather?.city || "Loading…"}
+            onAddItem={handleOpenAdd}
+            onLogin={() => setIsLoginOpen(true)}
+            onRegister={() => setIsRegisterOpen(true)}
+          />
 
-                {error && <div className="status status--error">{error}</div>}
-                {isLoading && !weather && <div className="status">Loading weather…</div>}
+          {error && <div className="status status--error">{error}</div>}
+          {isLoading && !weather && <div className="status">Loading weather…</div>}
 
+          <Routes>
+            {/* Home (/) */}
+            <Route
+              path="/"
+              element={
                 <Main
                   weather={weather}
                   weatherType={weatherType}
@@ -261,24 +261,14 @@ export default function AppContent() {
                   onCardClick={handleCardClick}
                   onCardLike={handleCardLike}
                 />
+              }
+            />
 
-                <Footer />
-              </div>
-            }
-          />
-
-          {/* Profile (/profile) - Protected Route */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <div className="app">
-                  <Header
-                    city={weather?.city || "Loading…"}
-                    onAddItem={handleOpenAdd}
-                    onLogin={() => setIsLoginOpen(true)}
-                    onRegister={() => setIsRegisterOpen(true)}
-                  />
+            {/* Profile (/profile) - Protected Route */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
                   <Profile
                     items={items}
                     onAddItem={handleOpenAdd}
@@ -287,15 +277,16 @@ export default function AppContent() {
                     onLogout={handleLogout}
                     onEditProfile={() => setIsEditProfileOpen(true)}
                   />
-                  <Footer />
-                </div>
-              </ProtectedRoute>
-            }
-          />
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Catch-all: redirect unknown paths to home */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* Catch-all: redirect unknown paths to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+
+          <Footer />
+        </div>
 
         {/* Add Item modal */}
         {isAddOpen && (

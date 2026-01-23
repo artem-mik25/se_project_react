@@ -18,13 +18,7 @@ export default function ItemCard({ item, onClick, onCardLike }) {
 
   return (
     <div className="item-card">
-      <img
-        src={item.imageUrl}
-        alt={item.name}
-        className="item-card__image"
-        onClick={() => onClick(item)}
-      />
-      <div className="item-card__footer">
+      <div className="item-card__header">
         <p className="item-card__name">{item.name}</p>
         {currentUser && (
           <button
@@ -36,6 +30,12 @@ export default function ItemCard({ item, onClick, onCardLike }) {
           </button>
         )}
       </div>
+      <img
+        src={item.imageUrl}
+        alt={item.name}
+        className="item-card__image"
+        onClick={() => onClick(item)}
+      />
     </div>
   );
 }

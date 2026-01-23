@@ -152,15 +152,6 @@ export default function RegisterModal({ isOpen, onRegister, onClose, onSwitchToL
         type="button"
         className="modal__link"
         onClick={onSwitchToLogin}
-        style={{
-          background: "none",
-          border: "none",
-          color: "#0066cc",
-          cursor: "pointer",
-          textDecoration: "underline",
-          padding: 0,
-          marginTop: "8px"
-        }}
       >
         or Log In
       </button>
