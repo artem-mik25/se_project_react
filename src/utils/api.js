@@ -19,7 +19,7 @@ function getHeaders(needsAuth = false) {
   return headers;
 }
 
-async function handle(res) {
+export async function handle(res) {
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(`API ${res.status}: ${text || res.statusText}`);

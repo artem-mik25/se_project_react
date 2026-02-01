@@ -1,13 +1,7 @@
 // src/utils/auth.js
-const baseUrl = "http://localhost:3001";
+import { handle } from "./api.js";
 
-async function handleResponse(res) {
-  if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`API ${res.status}: ${text || res.statusText}`);
-  }
-  return res.json();
-}
+const baseUrl = "http://localhost:3001";
 
 // Register a new user
 export function signup({ name, avatar, email, password }) {
@@ -15,7 +9,7 @@ export function signup({ name, avatar, email, password }) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, avatar, email, password }),
-  }).then(handleResponse);
+  }).then(handle);
 }
 
 // Sign in an existing user
@@ -24,7 +18,7 @@ export function signin({ email, password }) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
-  }).then(handleResponse);
+  }).then(handle);
 }
 
 // Get current user info (requires token)
@@ -34,7 +28,7 @@ export function getCurrentUser(token) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-  }).then(handleResponse);
+  }).then(handle);
 }
 
 // Update current user profile (requires token)
@@ -46,5 +40,5 @@ export function updateProfile({ name, avatar }, token) {
       Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ name, avatar }),
-  }).then(handleResponse);
+  }).then(handle);
 }
