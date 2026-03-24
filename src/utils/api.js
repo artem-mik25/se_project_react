@@ -1,6 +1,9 @@
 // src/utils/api.js
 
-const baseUrl = "http://localhost:3001";
+const baseUrl =
+  process.env.NODE_ENV === "production"
+    ? "https://api.artemmik25.mooo.com"
+    : "http://localhost:3001";
 
 // Get token from localStorage
 function getToken() {
