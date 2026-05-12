@@ -22,7 +22,9 @@
       "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTYwMmE5ODQ0YzEyNTAwMjhkNjBhNTYiLCJpYXQiOjE3Njc5MTAwNDgsImV4cCI6MTc2ODUxNDg0OH0.ipcqqqVM-mWsjjZx5KqJ5f2Pt_NPtJmU9R-tuT4tdnM\")",
       "Bash(ITEM_ID=\"69602ae344c1250028d60a5c\")",
       "Bash(npm run lint:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(TOKEN=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2OTYwMmNiOTQ0YzEyNTAwMjhkNjBhNjgiLCJpYXQiOjE3Njc5MTA1OTEsImV4cCI6MTc2ODUxNTM5MX0.bFZohf8a2L2Hjrh-O_VS1Gv1aX7m7faUFuqMv2Cwb8k\")",
+      "Bash(ITEM_ID=\"69602cd744c1250028d60a6d\")"
     ]
   }
 }
