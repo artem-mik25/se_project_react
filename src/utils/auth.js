@@ -1,7 +1,10 @@
 // src/utils/auth.js
 import { handle } from "./api.js";
 
-const baseUrl = "http://localhost:3001";
+const baseUrl =
+  process.env.NODE_ENV === "production"
+    ? "https://api.artemmik25.mooo.com"
+    : "http://localhost:3001";
 
 // Register a new user
 export function signup({ name, avatar, email, password }) {

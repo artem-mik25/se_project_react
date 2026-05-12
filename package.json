@@ -3,11 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://artemmik25.mooo.com",
   "scripts": {
     "dev": "vite --open",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && scp -r ./dist/* mikhaylov25.artem@artemmik25.mooo.com:/home/mikhaylov25.artem/frontend"
   },
   "dependencies": {
     "mongoose": "^8.19.1",
